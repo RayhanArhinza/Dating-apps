@@ -659,43 +659,81 @@ function saveProfilLocal(data){ localStorage.setItem(LS_PROFIL_KEY, JSON.stringi
  * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
  * Ini yang memperbaiki bug "Invalid Date".
  */
+/**
+ * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
+ *
+ * PENTING — masalah timezone:
+ * Google Sheets kadang mengirim tanggal sebagai ISO UTC string,
+ * mis. "2026-07-12T00:00:00.000Z" yang di zona WIB (UTC+7) terbaca
+ * sebagai "2026-07-11T07:00:00" → tanggal maju mundur 1 hari.
+ *
+ * Solusinya: kalau string mengandung "T" (ada waktu), kita buang
+ * bagian waktunya dan ambil hanya bagian tanggal lokal dengan
+ * mengkonversi ke waktu lokal dulu, BUKAN pakai toISOString()
+ * yang selalu UTC.
+ */
 function toDateOnlyStr(input){
   if (!input) return '';
   if (typeof input !== 'string') return '';
-  const m = input.match(/^(\d{4}-\d{2}-\d{2})/);
-  if (m) return m[1];
+
+  // Sudah format YYYY-MM-DD murni → langsung pakai
+  const plain = input.match(/^(\d{4}-\d{2}-\d{2})(?:T.*)?$/);
+  if (plain) {
+    // Kalau ada bagian waktu (ISO), parse dulu lalu ambil tanggal LOKAL
+    if (input.includes('T')) {
+      const d = new Date(input);
+      if (!isNaN(d.getTime())) {
+        // padStart supaya selalu 2 digit
+        const yy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yy}-${mm}-${dd}`;
+      }
+    }
+    return plain[1]; // Tidak ada "T", ambil bagian YYYY-MM-DD saja
+  }
+
+  // Fallback: coba parse biasa lalu ambil tanggal lokal
   const d = new Date(input);
-  if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+  if (!isNaN(d.getTime())) {
+    const yy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yy}-${mm}-${dd}`;
+  }
   return '';
 }
 
-function fmtTanggalIndo(iso){
+/**
+ * Buat objek Date dari string YYYY-MM-DD tanpa efek timezone.
+ * Selalu interpretasikan sebagai waktu lokal tengah malam.
+ */
+function localDate(iso){
   const clean = toDateOnlyStr(iso);
-  if (!clean) return '';
-  const d = new Date(clean + 'T00:00:00');
-  if (isNaN(d.getTime())) return '';
+  if (!clean) return null;
+  const [y, m, d] = clean.split('-').map(Number);
+  return new Date(y, m - 1, d); // konstruktor (year, month0, day) = lokal
+}
+
+function fmtTanggalIndo(iso){
+  const d = localDate(iso);
+  if (!d) return '';
   return d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
 function fmtTanggalSingkat(iso){
-  const clean = toDateOnlyStr(iso);
-  if (!clean) return '';
-  const d = new Date(clean + 'T00:00:00');
-  if (isNaN(d.getTime())) return '';
+  const d = localDate(iso);
+  if (!d) return '';
   return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short' });
 }
 function fmtBulanTahun(iso){
-  const clean = toDateOnlyStr(iso);
-  if (!clean) return '';
-  const d = new Date(clean + 'T00:00:00');
-  if (isNaN(d.getTime())) return '';
+  const d = localDate(iso);
+  if (!d) return '';
   return d.toLocaleDateString('id-ID', { month:'long', year:'numeric' });
 }
 function daysBetween(iso){
-  const clean = toDateOnlyStr(iso);
-  if (!clean) return 0;
-  const today  = new Date(); today.setHours(0,0,0,0);
-  const target = new Date(clean + 'T00:00:00');
-  if (isNaN(target.getTime())) return 0;
+  const target = localDate(iso);
+  if (!target) return 0;
+  const today = new Date(); today.setHours(0,0,0,0);
   return Math.round((target - today) / 86400000);
 }
 function escapeHtml(str=''){
