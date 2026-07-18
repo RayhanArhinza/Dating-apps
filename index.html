@@ -1,1231 +1,970 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
-    <title>Papan Kenangan — Jadwal Kencan Kita 💌</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #fff2ed;
-        --board: #fbe4da;
-        --card: #ffffff;
-        --ink: #402a3d;
-        --ink-soft: rgba(64, 42, 61, 0.6);
-        --rose: #e8607e;
-        --rose-deep: #b23a5c;
-        --gold: #f0b860;
-        --line: rgba(64, 42, 61, 0.12);
-      }
-      html,
-      body {
-        background: var(--bg);
-        font-family: "Quicksand", sans-serif;
-        color: var(--ink);
-        -webkit-tap-highlight-color: transparent;
-      }
-      .font-display {
-        font-family: "Fredoka", sans-serif;
-      }
-      .font-hand {
-        font-family: "Caveat", cursive;
-      }
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Papan Kenangan — Jadwal Kencan Kita 💌</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFF2ED;
+    --board: #FBE4DA;
+    --card: #FFFFFF;
+    --ink: #402A3D;
+    --ink-soft: rgba(64,42,61,0.6);
+    --rose: #E8607E;
+    --rose-deep: #B23A5C;
+    --gold: #F0B860;
+    --line: rgba(64,42,61,0.12);
+  }
+  html,body{ background:var(--bg); font-family:'Quicksand', sans-serif; color:var(--ink); -webkit-tap-highlight-color:transparent; }
+  .font-display{ font-family:'Fredoka', sans-serif; }
+  .font-hand{ font-family:'Caveat', cursive; }
 
-      .app-shell {
-        max-width: 460px;
-        margin: 0 auto;
-        min-height: 100vh;
-        position: relative;
-        background: var(--bg);
-      }
-      @media (min-width: 461px) {
-        .app-shell {
-          box-shadow:
-            0 0 0 1px var(--line),
-            0 20px 60px -20px rgba(64, 42, 61, 0.35);
-        }
-      }
+  .app-shell{ max-width:460px; margin:0 auto; min-height:100vh; position:relative; background:var(--bg); }
+  @media(min-width:461px){
+    .app-shell{ box-shadow:0 0 0 1px var(--line), 0 20px 60px -20px rgba(64,42,61,.35); }
+  }
 
-      .cork {
-        background-color: var(--board);
-        background-image:
-          radial-gradient(
-            circle at 15% 25%,
-            rgba(64, 42, 61, 0.05) 1.5px,
-            transparent 1.6px
-          ),
-          radial-gradient(
-            circle at 55% 65%,
-            rgba(64, 42, 61, 0.05) 1.5px,
-            transparent 1.6px
-          ),
-          radial-gradient(
-            circle at 85% 35%,
-            rgba(64, 42, 61, 0.05) 1.5px,
-            transparent 1.6px
-          ),
-          radial-gradient(
-            circle at 35% 85%,
-            rgba(64, 42, 61, 0.05) 1.5px,
-            transparent 1.6px
-          );
-        background-size: 40px 40px;
-      }
+  .cork{
+    background-color:var(--board);
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(64,42,61,.05) 1.5px, transparent 1.6px),
+      radial-gradient(circle at 55% 65%, rgba(64,42,61,.05) 1.5px, transparent 1.6px),
+      radial-gradient(circle at 85% 35%, rgba(64,42,61,.05) 1.5px, transparent 1.6px),
+      radial-gradient(circle at 35% 85%, rgba(64,42,61,.05) 1.5px, transparent 1.6px);
+    background-size: 40px 40px;
+  }
 
-      /* ===== Polaroid pinned to board ===== */
-      .polaroid {
-        background: var(--card);
-        padding: 8px 8px 30px 8px;
-        border-radius: 6px;
-        box-shadow:
-          0 6px 14px -4px rgba(64, 42, 61, 0.28),
-          0 2px 3px rgba(64, 42, 61, 0.12);
-        transition:
-          transform 0.18s ease,
-          box-shadow 0.18s ease;
-        cursor: pointer;
-      }
-      .polaroid:hover,
-      .polaroid:focus-visible {
-        transform: rotate(0deg) translateY(-4px) scale(1.02) !important;
-        box-shadow: 0 14px 26px -6px rgba(64, 42, 61, 0.38);
-        z-index: 5;
-      }
-      .polaroid .photo {
-        aspect-ratio: 1/1;
-        border-radius: 3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.6rem;
-        position: relative;
-        overflow: hidden;
-      }
-      .polaroid .photo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      .polaroid .caption {
-        font-family: "Fredoka", sans-serif;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-align: center;
-        margin-top: 6px;
-        color: var(--ink);
-        line-height: 1.2;
-      }
-      .pin {
-        position: absolute;
-        top: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        box-shadow:
-          0 2px 3px rgba(0, 0, 0, 0.35),
-          inset 0 -2px 3px rgba(0, 0, 0, 0.2),
-          inset 0 2px 2px rgba(255, 255, 255, 0.4);
-        z-index: 2;
-      }
-      .rot1 {
-        transform: rotate(-3deg);
-      }
-      .rot2 {
-        transform: rotate(2.5deg);
-      }
-      .rot3 {
-        transform: rotate(-1.5deg);
-      }
-      .rot4 {
-        transform: rotate(3.5deg);
-      }
+  /* ===== Polaroid pinned to board ===== */
+  .polaroid{
+    background:var(--card);
+    padding:8px 8px 30px 8px;
+    border-radius:6px;
+    box-shadow: 0 6px 14px -4px rgba(64,42,61,.28), 0 2px 3px rgba(64,42,61,.12);
+    transition: transform .18s ease, box-shadow .18s ease;
+    cursor:pointer;
+  }
+  .polaroid:hover, .polaroid:focus-visible{ transform: rotate(0deg) translateY(-4px) scale(1.02) !important; box-shadow:0 14px 26px -6px rgba(64,42,61,.38); z-index:5; }
+  .polaroid .photo{
+    aspect-ratio:1/1; border-radius:3px; display:flex; align-items:center; justify-content:center;
+    font-size:2.6rem; position:relative; overflow:hidden;
+  }
+  .polaroid .photo img{ width:100%; height:100%; object-fit:cover; }
+  .polaroid .caption{ font-family:'Fredoka',sans-serif; font-size:.8rem; font-weight:600; text-align:center; margin-top:6px; color:var(--ink); line-height:1.2; }
+  .pin{
+    position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+    width:16px; height:16px; border-radius:50%;
+    box-shadow: 0 2px 3px rgba(0,0,0,.35), inset 0 -2px 3px rgba(0,0,0,.2), inset 0 2px 2px rgba(255,255,255,.4);
+    z-index:2;
+  }
+  .rot1{ transform:rotate(-3deg); } .rot2{ transform:rotate(2.5deg); }
+  .rot3{ transform:rotate(-1.5deg); } .rot4{ transform:rotate(3.5deg); }
 
-      /* ===== Bottom nav ===== */
-      .bottom-nav {
-        position: fixed;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 0;
-        width: 100%;
-        max-width: 460px;
-        background: var(--card);
-        border-top: 1px solid var(--line);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        box-shadow: 0 -6px 20px -8px rgba(64, 42, 61, 0.18);
-        z-index: 30;
-      }
-      .nav-btn {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        padding: 8px 2px 10px;
-        color: var(--ink-soft);
-      }
-      .nav-btn.active {
-        color: var(--rose-deep);
-      }
-      .nav-btn .pill {
-        padding: 3px 14px;
-        border-radius: 9999px;
-        transition: background 0.15s ease;
-      }
-      .nav-btn.active .pill {
-        background: rgba(232, 96, 126, 0.14);
-      }
-      .fab {
-        position: absolute;
-        left: 50%;
-        top: -26px;
-        transform: translateX(-50%);
-        width: 58px;
-        height: 58px;
-        border-radius: 9999px;
-        background: linear-gradient(155deg, var(--rose), var(--rose-deep));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow:
-          0 10px 20px -6px rgba(178, 58, 92, 0.55),
-          0 0 0 6px var(--bg);
-        color: #fff;
-        font-size: 1.9rem;
-        font-weight: 600;
-      }
+  /* ===== Bottom nav ===== */
+  .bottom-nav{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:460px;
+    background:var(--card); border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    box-shadow:0 -6px 20px -8px rgba(64,42,61,.18);
+    z-index:30;
+  }
+  .nav-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 2px 10px; color:var(--ink-soft); }
+  .nav-btn.active{ color:var(--rose-deep); }
+  .nav-btn .pill{ padding:3px 14px; border-radius:9999px; transition:background .15s ease; }
+  .nav-btn.active .pill{ background:rgba(232,96,126,.14); }
+  .fab{
+    position:absolute; left:50%; top:-26px; transform:translateX(-50%);
+    width:58px; height:58px; border-radius:9999px;
+    background:linear-gradient(155deg, var(--rose), var(--rose-deep));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 20px -6px rgba(178,58,92,.55), 0 0 0 6px var(--bg);
+    color:#fff; font-size:1.9rem; font-weight:600;
+  }
 
-      .page {
-        display: none;
-        padding-bottom: 104px;
-      }
-      .page.active {
-        display: block;
-      }
+  .page{ display:none; padding-bottom:104px; }
+  .page.active{ display:block; }
 
-      .chip {
-        transition: all 0.15s ease;
-        white-space: nowrap;
-      }
-      .chip[data-active="true"] {
-        color: #fff;
-        box-shadow: 0 4px 10px -3px rgba(64, 42, 61, 0.35);
-      }
+  .chip{ transition:all .15s ease; white-space:nowrap; }
+  .chip[data-active="true"]{ color:#fff; box-shadow:0 4px 10px -3px rgba(64,42,61,.35); }
 
-      .stat-card {
-        background: var(--card);
-        border-radius: 16px;
-        box-shadow: 0 4px 10px -4px rgba(64, 42, 61, 0.15);
-      }
+  .stat-card{ background:var(--card); border-radius:16px; box-shadow:0 4px 10px -4px rgba(64,42,61,.15); }
 
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(64, 42, 61, 0.45);
-        backdrop-filter: blur(2px);
-        z-index: 50;
-        display: none;
-        align-items: flex-end;
-        justify-content: center;
-      }
-      .modal-backdrop.open {
-        display: flex;
-      }
-      .sheet {
-        background: var(--card);
-        width: 100%;
-        max-width: 460px;
-        border-radius: 24px 24px 0 0;
-        max-height: 88vh;
-        overflow-y: auto;
-      }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(64,42,61,.45); backdrop-filter:blur(2px); z-index:50; display:none; align-items:flex-end; justify-content:center; }
+  .modal-backdrop.open{ display:flex; }
+  .sheet{ background:var(--card); width:100%; max-width:460px; border-radius:24px 24px 0 0; max-height:88vh; overflow-y:auto; }
 
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(64, 42, 61, 0.25);
-        border-radius: 8px;
-      }
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb{ background:rgba(64,42,61,.25); border-radius:8px; }
+  .no-scrollbar::-webkit-scrollbar{ display:none; }
+  .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
 
-      input,
-      textarea,
-      select {
-        font-family: "Quicksand", sans-serif;
-      }
-      input:focus,
-      textarea:focus,
-      select:focus {
-        outline: 2px solid var(--rose);
-        outline-offset: 1px;
-      }
+  input, textarea, select{ font-family:'Quicksand',sans-serif; }
+  input:focus, textarea:focus, select:focus{ outline:2px solid var(--rose); outline-offset:1px; }
 
-      .fade-in {
-        animation: fadeIn 0.25s ease both;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .polaroid,
-        .fade-in,
-        .nav-btn .pill {
-          animation: none !important;
-          transition: none !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      id="loadingBar"
-      class="fixed top-0 left-1/2 -translate-x-1/2 z-[60] hidden"
-    >
-      <div
-        class="mt-2 bg-[var(--rose-deep)] text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5"
-      >
-        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-        memuat...
+  .fade-in{ animation:fadeIn .25s ease both; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .polaroid, .fade-in, .nav-btn .pill{ animation:none !important; transition:none !important; } }
+
+  /* ===== LOCK SCREEN ===== */
+  #lockScreen{
+    position:fixed; inset:0; z-index:999;
+    background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:2rem;
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  #lockScreen.unlocking{
+    opacity:0; transform:scale(1.04) translateY(-12px); pointer-events:none;
+  }
+  #lockScreen.hidden{ display:none; }
+
+  .lock-petals{
+    position:relative; width:96px; height:96px; margin-bottom:1.5rem;
+  }
+  .lock-petals::before, .lock-petals::after{
+    content:''; position:absolute; inset:0; border-radius:50%;
+    border:3px solid var(--rose);
+    animation: petalPulse 3s ease-in-out infinite;
+  }
+  .lock-petals::after{
+    border-color:var(--gold);
+    animation-delay:1.5s;
+    transform:scale(.7);
+  }
+  .lock-petals .heart{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:2.8rem;
+    animation: heartBeat 2s ease-in-out infinite;
+  }
+  @keyframes petalPulse{
+    0%,100%{ transform:scale(1); opacity:.6; }
+    50%{ transform:scale(1.18); opacity:1; }
+  }
+  @keyframes heartBeat{
+    0%,100%{ transform:scale(1); }
+    14%{ transform:scale(1.12); }
+    28%{ transform:scale(1); }
+    42%{ transform:scale(1.08); }
+    70%{ transform:scale(1); }
+  }
+
+  .lock-title{
+    font-family:'Caveat', cursive;
+    font-size:2.2rem; font-weight:700;
+    color:var(--rose-deep);
+    text-align:center; margin-bottom:.3rem;
+  }
+  .lock-sub{
+    font-size:.8rem; color:var(--ink-soft);
+    text-align:center; margin-bottom:2rem;
+  }
+
+  /* PIN dots + input */
+  .pin-display{
+    display:flex; gap:14px; margin-bottom:1.6rem; justify-content:center;
+  }
+  .pin-dot{
+    width:14px; height:14px; border-radius:50%;
+    border:2px solid var(--rose);
+    background:transparent;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .pin-dot.filled{
+    background:var(--rose);
+    transform:scale(1.15);
+  }
+  .pin-dot.error{
+    border-color:#e74c3c; background:#e74c3c;
+    animation:shakeDot .35s ease;
+  }
+  @keyframes shakeDot{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-5px); }
+    40%{ transform:translateX(5px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  /* Keypad */
+  .keypad{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:12px; max-width:280px; width:100%;
+  }
+  .key-btn{
+    aspect-ratio:1/1; border-radius:50%;
+    background:var(--card);
+    border:1.5px solid var(--line);
+    font-family:'Fredoka', sans-serif;
+    font-size:1.45rem; font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    box-shadow:0 4px 10px -4px rgba(64,42,61,.18);
+    transition: background .1s ease, transform .1s ease, box-shadow .1s ease;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .key-btn:active{
+    background:var(--rose); color:#fff;
+    transform:scale(.92);
+    box-shadow:0 2px 6px -2px rgba(178,58,92,.4);
+  }
+  .key-btn.key-del{
+    font-size:1.1rem; color:var(--rose-deep);
+    background:transparent; border-color:transparent; box-shadow:none;
+  }
+  .key-btn.key-del:active{ background:rgba(232,96,126,.12); color:var(--rose-deep); }
+  .key-btn.key-empty{ pointer-events:none; background:transparent; border-color:transparent; box-shadow:none; }
+
+  .lock-hint{
+    margin-top:1.6rem;
+    font-size:.72rem; color:var(--ink-soft);
+    text-align:center; min-height:1.2em;
+    transition: opacity .2s ease;
+  }
+  .lock-hint.shake{ color:#e74c3c; }
+</style>
+</head>
+<body>
+<!-- ============ LOCK SCREEN ============ -->
+<div id="lockScreen">
+  <div class="lock-petals"><span class="heart">💌</span></div>
+  <p class="lock-title">Hanya untuk kita berdua</p>
+  <p class="lock-sub">masukkan kode rahasia dulu, ya ✨</p>
+
+  <!-- PIN dots (8 karakter) -->
+  <div class="pin-display" id="pinDisplay"></div>
+
+  <!-- Keypad -->
+  <div class="keypad" id="keypad">
+    <button class="key-btn" data-n="1">1</button>
+    <button class="key-btn" data-n="2">2</button>
+    <button class="key-btn" data-n="3">3</button>
+    <button class="key-btn" data-n="4">4</button>
+    <button class="key-btn" data-n="5">5</button>
+    <button class="key-btn" data-n="6">6</button>
+    <button class="key-btn" data-n="7">7</button>
+    <button class="key-btn" data-n="8">8</button>
+    <button class="key-btn" data-n="9">9</button>
+    <button class="key-btn key-empty" aria-hidden="true"></button>
+    <button class="key-btn" data-n="0">0</button>
+    <button class="key-btn key-del" id="keyDel" aria-label="Hapus">⌫</button>
+  </div>
+
+  <p class="lock-hint" id="lockHint">&nbsp;</p>
+</div>
+
+<div id="loadingBar" class="fixed top-0 left-1/2 -translate-x-1/2 z-[60] hidden">
+  <div class="mt-2 bg-[var(--rose-deep)] text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5">
+    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> memuat...
+  </div>
+</div>
+<div class="app-shell">
+
+  <!-- ============ PAGE: BERANDA ============ -->
+  <section id="page-beranda" class="page active">
+    <header class="px-5 pt-6 pb-4 flex items-center justify-between">
+      <div>
+        <p class="text-xs text-[var(--ink-soft)]">Halo,</p>
+        <h1 class="font-display text-xl font-semibold"><span id="lblNamaHeader">Aku & Kamu</span> 👋</h1>
       </div>
-    </div>
-    <div class="app-shell">
-      <!-- ============ PAGE: BERANDA ============ -->
-      <section id="page-beranda" class="page active">
-        <header class="px-5 pt-6 pb-4 flex items-center justify-between">
-          <div>
-            <p class="text-xs text-[var(--ink-soft)]">Halo,</p>
-            <h1 class="font-display text-xl font-semibold">
-              <span id="lblNamaHeader">Aku & Kamu</span> 👋
-            </h1>
-          </div>
-          <button
-            id="btnGoProfilTop"
-            class="w-10 h-10 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-lg"
-          >
-            💗
-          </button>
-        </header>
+      <button id="btnGoProfilTop" class="w-10 h-10 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-lg">💗</button>
+    </header>
 
-        <div class="px-5">
-          <!-- Hero postcard -->
-          <div id="heroNext" class="mb-5"></div>
+    <div class="px-5">
+      <!-- Hero postcard -->
+      <div id="heroNext" class="mb-5"></div>
 
-          <!-- Stats row -->
-          <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="stat-card px-2 py-3 text-center">
-              <p
-                class="font-display text-2xl text-[var(--rose-deep)]"
-                id="statTotal"
-              >
-                0
-              </p>
-              <p
-                class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5"
-              >
-                total<br />kencan
-              </p>
-            </div>
-            <div class="stat-card px-2 py-3 text-center">
-              <p
-                class="font-display text-2xl text-[var(--rose-deep)]"
-                id="statSelesai"
-              >
-                0
-              </p>
-              <p
-                class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5"
-              >
-                sudah<br />dijalani
-              </p>
-            </div>
-            <div class="stat-card px-2 py-3 text-center">
-              <p
-                class="font-display text-2xl text-[var(--rose-deep)]"
-                id="statHari"
-              >
-                –
-              </p>
-              <p
-                class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5"
-              >
-                hari<br />bersama
-              </p>
-            </div>
-          </div>
+      <!-- Stats row -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="stat-card px-2 py-3 text-center">
+          <p class="font-display text-2xl text-[var(--rose-deep)]" id="statTotal">0</p>
+          <p class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5">total<br>kencan</p>
         </div>
-
-        <div class="flex items-center justify-between px-5 mb-3">
-          <h2 class="font-display text-lg font-semibold">
-            Papan kencan mendatang
-          </h2>
-          <button
-            id="btnLihatSemua"
-            class="text-xs font-semibold text-[var(--rose-deep)]"
-          >
-            lihat semua →
-          </button>
+        <div class="stat-card px-2 py-3 text-center">
+          <p class="font-display text-2xl text-[var(--rose-deep)]" id="statSelesai">0</p>
+          <p class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5">sudah<br>dijalani</p>
         </div>
-        <div
-          id="berandaBoard"
-          class="cork rounded-2xl mx-5 p-4 min-h-[180px]"
-        ></div>
-      </section>
-
-      <!-- ============ PAGE: JADWAL ============ -->
-      <section id="page-jadwal" class="page">
-        <header class="px-5 pt-6 pb-3">
-          <h1 class="font-display text-2xl font-semibold">Jadwal Kencan</h1>
-          <p class="text-xs text-[var(--ink-soft)]">
-            semua rencana yang lagi ditunggu-tunggu
-          </p>
-        </header>
-        <div
-          id="filterTabs"
-          class="flex gap-2 px-5 pb-3 overflow-x-auto no-scrollbar"
-        ></div>
-        <div
-          id="jadwalBoard"
-          class="cork mx-5 rounded-2xl p-4 grid grid-cols-2 gap-4 min-h-[220px]"
-        ></div>
-        <p
-          id="jadwalEmpty"
-          class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"
-        ></p>
-      </section>
-
-      <!-- ============ PAGE: KENANGAN ============ -->
-      <section id="page-kenangan" class="page">
-        <header class="px-5 pt-6 pb-3">
-          <h1 class="font-display text-2xl font-semibold">Album Kenangan</h1>
-          <p class="text-xs text-[var(--ink-soft)]">
-            kencan-kencan yang sudah kalian jalani
-          </p>
-        </header>
-        <div id="kenanganWrap" class="px-5"></div>
-        <p
-          id="kenanganEmpty"
-          class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"
-        ></p>
-      </section>
-
-      <!-- ============ PAGE: PROFIL ============ -->
-      <section id="page-profil" class="page">
-        <header class="px-5 pt-6 pb-3">
-          <h1 class="font-display text-2xl font-semibold">Profil Pasangan</h1>
-        </header>
-        <div class="px-5">
-          <div class="stat-card p-5 text-center mb-5">
-            <div class="flex items-center justify-center -space-x-3 mb-3">
-              <div
-                class="w-16 h-16 rounded-full bg-[var(--rose)] text-white flex items-center justify-center font-display text-xl border-4 border-[var(--card)]"
-                id="avatarA"
-              >
-                A
-              </div>
-              <div
-                class="w-16 h-16 rounded-full bg-[var(--gold)] text-white flex items-center justify-center font-display text-xl border-4 border-[var(--card)]"
-                id="avatarB"
-              >
-                K
-              </div>
-            </div>
-            <h2 class="font-display text-xl" id="profilNamaGabung">
-              Aku & Kamu
-            </h2>
-            <p
-              class="font-hand text-2xl text-[var(--rose-deep)] mt-1"
-              id="profilHariBersama"
-            >
-              klik "ubah" untuk isi tanggal jadian
-            </p>
-            <button
-              id="btnEditProfil"
-              class="mt-3 text-xs font-semibold bg-[var(--rose)]/15 text-[var(--rose-deep)] px-4 py-1.5 rounded-full"
-            >
-              ✏️ Ubah profil
-            </button>
-          </div>
-
-          <h3 class="font-display text-base font-semibold mb-2">
-            Kategori favorit
-          </h3>
-          <div id="kategoriStats" class="space-y-2 mb-6"></div>
-
-          <p
-            id="apiStatus"
-            class="text-center text-[11px] text-[var(--ink-soft)]"
-          ></p>
-          <p class="text-center text-[11px] text-[var(--ink-soft)] mt-1 mb-6">
-            dibuat dengan 💗
-          </p>
+        <div class="stat-card px-2 py-3 text-center">
+          <p class="font-display text-2xl text-[var(--rose-deep)]" id="statHari">–</p>
+          <p class="text-[10px] text-[var(--ink-soft)] leading-tight mt-0.5">hari<br>bersama</p>
         </div>
-      </section>
-
-      <!-- ============ BOTTOM NAV ============ -->
-      <nav class="bottom-nav">
-        <button class="fab" id="btnOpenAdd" aria-label="Tambah rencana">
-          +
-        </button>
-        <div class="grid grid-cols-5 items-center px-2 pt-2">
-          <button data-page="beranda" class="navTab nav-btn active">
-            <span class="pill"><span class="text-lg">🏠</span></span>
-            <span class="text-[10px] font-semibold">Beranda</span>
-          </button>
-          <button data-page="jadwal" class="navTab nav-btn">
-            <span class="pill"><span class="text-lg">📌</span></span>
-            <span class="text-[10px] font-semibold">Jadwal</span>
-          </button>
-          <div></div>
-          <button data-page="kenangan" class="navTab nav-btn">
-            <span class="pill"><span class="text-lg">📷</span></span>
-            <span class="text-[10px] font-semibold">Kenangan</span>
-          </button>
-          <button data-page="profil" class="navTab nav-btn">
-            <span class="pill"><span class="text-lg">💞</span></span>
-            <span class="text-[10px] font-semibold">Profil</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <!-- ============ MODAL: TAMBAH/UBAH JADWAL ============ -->
-    <div id="modalBackdrop" class="modal-backdrop">
-      <div class="sheet fade-in p-6 relative">
-        <div
-          class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"
-        ></div>
-        <button
-          id="btnCloseModal"
-          class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none"
-        >
-          &times;
-        </button>
-        <h2 id="modalTitle" class="font-display text-2xl font-semibold mb-4">
-          Tempel rencana baru 📌
-        </h2>
-        <form id="formJadwal" class="space-y-3" action="javascript:void(0);">
-          <input type="hidden" id="fId" />
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Judul acara</label
-            >
-            <input
-              required
-              id="fJudul"
-              type="text"
-              placeholder="Mis. Nonton sunset di pantai"
-              class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs font-semibold text-[var(--rose-deep)]"
-                >Tanggal</label
-              >
-              <input
-                required
-                id="fTanggal"
-                type="date"
-                class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-              />
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-[var(--rose-deep)]"
-                >Jam
-                <span class="font-normal text-[var(--ink-soft)]"
-                  >(opsional)</span
-                ></label
-              >
-              <input
-                id="fWaktu"
-                type="time"
-                placeholder="--:--"
-                class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Lokasi</label
-            >
-            <input
-              id="fLokasi"
-              type="text"
-              placeholder="Mis. Kafe favorit kita"
-              class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-            />
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Kategori</label
-            >
-            <div id="fKategoriGrid" class="grid grid-cols-4 gap-2 mt-1.5"></div>
-            <input type="hidden" id="fKategori" value="Makan" />
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Giliran rencana</label
-            >
-            <select
-              id="fGiliran"
-              class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-            ></select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Catatan manis (opsional)</label
-            >
-            <textarea
-              id="fCatatan"
-              rows="2"
-              placeholder="Bawa jaket, jangan lupa kamera..."
-              class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-            ></textarea>
-          </div>
-          <div class="flex gap-2 pt-2 pb-2">
-            <button
-              type="submit"
-              class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm transition-colors"
-            >
-              Tempel di papan 💕
-            </button>
-            <button
-              type="button"
-              id="btnDeleteInModal"
-              class="hidden text-xs text-red-500 px-3"
-            >
-              Hapus
-            </button>
-          </div>
-        </form>
       </div>
     </div>
 
-    <!-- ============ MODAL: DETAIL KARTU ============ -->
-    <div id="detailBackdrop" class="modal-backdrop">
-      <div class="sheet fade-in p-6 relative" id="detailContent"></div>
+    <div class="flex items-center justify-between px-5 mb-3">
+      <h2 class="font-display text-lg font-semibold">Papan kencan mendatang</h2>
+      <button id="btnLihatSemua" class="text-xs font-semibold text-[var(--rose-deep)]">lihat semua →</button>
     </div>
+    <div id="berandaBoard" class="cork rounded-2xl mx-5 p-4 min-h-[180px]"></div>
+    <p class="text-center font-hand text-lg text-[var(--ink-soft)] mt-4">tempel rencana baru, biar makin banyak yang dinanti ✨</p>
+  </section>
 
-    <!-- ============ MODAL: PROFIL ============ -->
-    <div id="modalNamaBackdrop" class="modal-backdrop">
-      <div class="sheet fade-in p-6 relative">
-        <div
-          class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"
-        ></div>
-        <button
-          id="btnCloseNama"
-          class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none"
-        >
-          &times;
-        </button>
-        <h2 class="font-display text-2xl font-semibold mb-4">
-          Profil kalian berdua
-        </h2>
-        <form id="formProfil" class="space-y-3" action="javascript:void(0);">
-          <input
-            id="pNamaA"
-            type="text"
-            placeholder="Namamu"
-            class="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-          />
-          <input
-            id="pNamaB"
-            type="text"
-            placeholder="Nama pasangan"
-            class="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-          />
-          <div>
-            <label class="text-xs font-semibold text-[var(--rose-deep)]"
-              >Tanggal jadian (opsional)</label
-            >
-            <input
-              id="pJadian"
-              type="date"
-              class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            class="w-full bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm mb-2"
-          >
-            Simpan
-          </button>
-        </form>
+  <!-- ============ PAGE: JADWAL ============ -->
+  <section id="page-jadwal" class="page">
+    <header class="px-5 pt-6 pb-3">
+      <h1 class="font-display text-2xl font-semibold">Jadwal Kencan</h1>
+      <p class="text-xs text-[var(--ink-soft)]">semua rencana yang lagi ditunggu-tunggu</p>
+    </header>
+    <div id="filterTabs" class="flex gap-2 px-5 pb-3 overflow-x-auto no-scrollbar"></div>
+    <div id="jadwalBoard" class="cork mx-5 rounded-2xl p-4 grid grid-cols-2 gap-4 min-h-[220px]"></div>
+    <p id="jadwalEmpty" class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"></p>
+  </section>
+
+  <!-- ============ PAGE: KENANGAN ============ -->
+  <section id="page-kenangan" class="page">
+    <header class="px-5 pt-6 pb-3">
+      <h1 class="font-display text-2xl font-semibold">Album Kenangan</h1>
+      <p class="text-xs text-[var(--ink-soft)]">kencan-kencan yang sudah kalian jalani</p>
+    </header>
+    <div id="kenanganWrap" class="px-5"></div>
+    <p id="kenanganEmpty" class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"></p>
+  </section>
+
+  <!-- ============ PAGE: PROFIL ============ -->
+  <section id="page-profil" class="page">
+    <header class="px-5 pt-6 pb-3">
+      <h1 class="font-display text-2xl font-semibold">Profil Pasangan</h1>
+    </header>
+    <div class="px-5">
+      <div class="stat-card p-5 text-center mb-5">
+        <div class="flex items-center justify-center -space-x-3 mb-3">
+          <div class="w-16 h-16 rounded-full bg-[var(--rose)] text-white flex items-center justify-center font-display text-xl border-4 border-[var(--card)]" id="avatarA">A</div>
+          <div class="w-16 h-16 rounded-full bg-[var(--gold)] text-white flex items-center justify-center font-display text-xl border-4 border-[var(--card)]" id="avatarB">K</div>
+        </div>
+        <h2 class="font-display text-xl" id="profilNamaGabung">Aku & Kamu</h2>
+        <p class="font-hand text-2xl text-[var(--rose-deep)] mt-1" id="profilHariBersama">klik "ubah" untuk isi tanggal jadian</p>
+        <button id="btnEditProfil" class="mt-3 text-xs font-semibold bg-[var(--rose)]/15 text-[var(--rose-deep)] px-4 py-1.5 rounded-full">✏️ Ubah profil</button>
       </div>
+
+      <h3 class="font-display text-base font-semibold mb-2">Kategori favorit</h3>
+      <div id="kategoriStats" class="space-y-2 mb-6"></div>
+
+      <p id="apiStatus" class="text-center text-[11px] text-[var(--ink-soft)]"></p>
+      <p class="text-center text-[11px] text-[var(--ink-soft)] mt-1 mb-6">dibuat dengan 💗 untuk kalian berdua</p>
     </div>
+  </section>
 
-    <script>
-      /* ============================================================
-       *  KONFIGURASI — ganti API_URL dengan URL Web App milikmu
-       * ============================================================ */
-      const CONFIG = {
-        API_URL:
-          "https://script.google.com/macros/s/AKfycbw9gXQjpaCl7jPjENoSQVNjuNbTHLwYJQy-Be2uXRHfeOKW1TvSBMXobvWcDsRdj3pgzw/exec",
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav">
+    <button class="fab" id="btnOpenAdd" aria-label="Tambah rencana">+</button>
+    <div class="grid grid-cols-5 items-center px-2 pt-2">
+      <button data-page="beranda" class="navTab nav-btn active">
+        <span class="pill"><span class="text-lg">🏠</span></span>
+        <span class="text-[10px] font-semibold">Beranda</span>
+      </button>
+      <button data-page="jadwal" class="navTab nav-btn">
+        <span class="pill"><span class="text-lg">📌</span></span>
+        <span class="text-[10px] font-semibold">Jadwal</span>
+      </button>
+      <div></div>
+      <button data-page="kenangan" class="navTab nav-btn">
+        <span class="pill"><span class="text-lg">📷</span></span>
+        <span class="text-[10px] font-semibold">Kenangan</span>
+      </button>
+      <button data-page="profil" class="navTab nav-btn">
+        <span class="pill"><span class="text-lg">💞</span></span>
+        <span class="text-[10px] font-semibold">Profil</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- ============ MODAL: TAMBAH/UBAH JADWAL ============ -->
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="sheet fade-in p-6 relative">
+    <div class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"></div>
+    <button id="btnCloseModal" class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none">&times;</button>
+    <h2 id="modalTitle" class="font-display text-2xl font-semibold mb-4">Tempel rencana baru 📌</h2>
+    <form id="formJadwal" class="space-y-3" action="javascript:void(0);">
+      <input type="hidden" id="fId">
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Judul acara</label>
+        <input required id="fJudul" type="text" placeholder="Mis. Nonton sunset di pantai"
+          class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-semibold text-[var(--rose-deep)]">Tanggal</label>
+          <input required id="fTanggal" type="date" class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-[var(--rose-deep)]">Jam <span class="font-normal text-[var(--ink-soft)]">(opsional)</span></label>
+          <input id="fWaktu" type="time" placeholder="--:--"
+            class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Lokasi</label>
+        <input id="fLokasi" type="text" placeholder="Mis. Kafe favorit kita"
+          class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Kategori</label>
+        <div id="fKategoriGrid" class="grid grid-cols-4 gap-2 mt-1.5"></div>
+        <input type="hidden" id="fKategori" value="Makan">
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Giliran rencana</label>
+        <select id="fGiliran" class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"></select>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Catatan manis (opsional)</label>
+        <textarea id="fCatatan" rows="2" placeholder="Bawa jaket, jangan lupa kamera..."
+          class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"></textarea>
+      </div>
+      <div class="flex gap-2 pt-2 pb-2">
+        <button type="submit" class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm transition-colors">Tempel di papan 💕</button>
+        <button type="button" id="btnDeleteInModal" class="hidden text-xs text-red-500 px-3">Hapus</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: DETAIL KARTU ============ -->
+<div id="detailBackdrop" class="modal-backdrop">
+  <div class="sheet fade-in p-6 relative" id="detailContent"></div>
+</div>
+
+<!-- ============ MODAL: PROFIL ============ -->
+<div id="modalNamaBackdrop" class="modal-backdrop">
+  <div class="sheet fade-in p-6 relative">
+    <div class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"></div>
+    <button id="btnCloseNama" class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none">&times;</button>
+    <h2 class="font-display text-2xl font-semibold mb-4">Profil kalian berdua</h2>
+    <form id="formProfil" class="space-y-3" action="javascript:void(0);">
+      <input id="pNamaA" type="text" placeholder="Namamu" class="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      <input id="pNamaB" type="text" placeholder="Nama pasangan" class="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      <div>
+        <label class="text-xs font-semibold text-[var(--rose-deep)]">Tanggal jadian (opsional)</label>
+        <input id="pJadian" type="date" class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      </div>
+      <button type="submit" class="w-full bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm mb-2">Simpan</button>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+ *  LOCK SCREEN
+ * ============================================================ */
+(function(){
+  const SECRET     = '12072026';   // kode rahasia
+  const LS_UNLOCK  = 'jkk_unlocked';
+  const MAX_LEN    = SECRET.length;
+
+  const screen     = document.getElementById('lockScreen');
+  const pinDisplay = document.getElementById('pinDisplay');
+  const hintEl     = document.getElementById('lockHint');
+  const keypad     = document.getElementById('keypad');
+  const delBtn     = document.getElementById('keyDel');
+
+  let entered = '';
+  let locked  = true;
+
+  /* Cek apakah sudah pernah unlock di sesi ini */
+  if (sessionStorage.getItem(LS_UNLOCK) === '1') {
+    screen.classList.add('hidden');
+    locked = false;
+    return;
+  }
+
+  /* Buat dot indikator sesuai panjang kode */
+  function buildDots(){
+    pinDisplay.innerHTML = '';
+    for (let i = 0; i < MAX_LEN; i++){
+      const d = document.createElement('div');
+      d.className = 'pin-dot';
+      d.id = 'dot' + i;
+      pinDisplay.appendChild(d);
+    }
+  }
+  buildDots();
+
+  function updateDots(){
+    for (let i = 0; i < MAX_LEN; i++){
+      const d = document.getElementById('dot' + i);
+      d.classList.toggle('filled', i < entered.length);
+      d.classList.remove('error');
+    }
+  }
+
+  function setHint(msg, isError){
+    hintEl.textContent  = msg || '\u00a0';
+    hintEl.className    = 'lock-hint' + (isError ? ' shake' : '');
+  }
+
+  function doError(){
+    for (let i = 0; i < MAX_LEN; i++){
+      const d = document.getElementById('dot' + i);
+      d.classList.add('error');
+    }
+    setHint('kode salah, coba lagi ya 💔', true);
+    setTimeout(()=>{
+      entered = '';
+      updateDots();
+      setHint('');
+    }, 900);
+  }
+
+  function tryUnlock(){
+    if (entered === SECRET){
+      sessionStorage.setItem(LS_UNLOCK, '1');
+      screen.classList.add('unlocking');
+      setTimeout(()=> screen.classList.add('hidden'), 500);
+    } else {
+      doError();
+    }
+  }
+
+  function addDigit(n){
+    if (entered.length >= MAX_LEN) return;
+    entered += n;
+    updateDots();
+    setHint('');
+    if (entered.length === MAX_LEN) setTimeout(tryUnlock, 80);
+  }
+
+  function delDigit(){
+    if (!entered.length) return;
+    entered = entered.slice(0, -1);
+    updateDots();
+    setHint('');
+  }
+
+  /* Keypad click */
+  keypad.addEventListener('click', e=>{
+    const btn = e.target.closest('[data-n]');
+    if (btn) addDigit(btn.dataset.n);
+  });
+  delBtn.addEventListener('click', delDigit);
+
+  /* Keyboard support */
+  document.addEventListener('keydown', e=>{
+    if (!locked) return;
+    if (e.key >= '0' && e.key <= '9') addDigit(e.key);
+    if (e.key === 'Backspace') delDigit();
+  });
+})();
+
+/* ============================================================
+ *  KONFIGURASI — ganti API_URL dengan URL Web App milikmu
+ * ============================================================ */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbwfPxboMk8wo2y_O_s65psYX5_SSOI8wVv7SD2sca6_mV44KhmpEyR3YhbsKGvrWJ22fw/exec'
+};
+
+const CATEGORY_META = {
+  'Makan':        { emoji:'🍜', color:'#E2725B' },
+  'Nonton':       { emoji:'🎬', color:'#4A3F6B' },
+  'Jalan-jalan':  { emoji:'🌳', color:'#4F8F6B' },
+  'Rumah':        { emoji:'🏠', color:'#C77D3E' },
+  'Kejutan':      { emoji:'🎁', color:'#E3A857' },
+  'Olahraga':     { emoji:'🏃', color:'#3B7DBF' },
+  'Belanja':      { emoji:'🛍️', color:'#D45D9C' },
+  'Piknik':       { emoji:'🧺', color:'#8AA05C' },
+  'Konser':       { emoji:'🎤', color:'#8452A6' },
+  'Traveling':    { emoji:'✈️', color:'#2FA0A0' },
+  'Kopi':         { emoji:'☕', color:'#7A5238' },
+  'Ulang Tahun':  { emoji:'🎂', color:'#E0568A' },
+  'Belajar':      { emoji:'📚', color:'#5C6B8A' },
+  'Lainnya':      { emoji:'💌', color:'#B05C7E' },
+};
+
+let STATE = {
+  jadwal: [],
+  profil: { namaA:'Aku', namaB:'Kamu', jadian:'' },
+  filterKategori: 'Semua',
+  editingId: null,
+  currentPage: 'beranda',
+};
+
+/* ============================================================
+ *  STORAGE LAYER
+ * ============================================================ */
+const LS_KEY       = 'jadwalKencan_data';
+const LS_PROFIL_KEY = 'jadwalKencan_profil';
+const useLocal     = !CONFIG.API_URL;
+
+function lsGetAll(){ return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+function lsSaveAll(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+async function apiList(){
+  if (useLocal) return { ok:true, data: lsGetAll() };
+  const res = await fetch(`${CONFIG.API_URL}?action=list&_ts=${Date.now()}`, { cache: 'no-store' });
+  return res.json();
+}
+async function apiGetProfil(){
+  if (useLocal) return { ok:true, data: getProfilLocal() };
+  const res = await fetch(`${CONFIG.API_URL}?action=profil&_ts=${Date.now()}`, { cache: 'no-store' });
+  return res.json();
+}
+async function apiSaveProfil(data){
+  if (useLocal){ saveProfilLocal(data); return { ok:true }; }
+  return apiPost({ action:'saveProfil', data });
+}
+async function apiAdd(data){
+  if (useLocal){
+    const arr  = lsGetAll();
+    const item = { id:'J'+Date.now(), status:'Rencana', dibuatPada:new Date().toISOString(), foto:'', ...data };
+    arr.push(item); lsSaveAll(arr);
+    return { ok:true, id:item.id };
+  }
+  return apiPost({ action:'add', data });
+}
+async function apiUpdate(data){
+  if (useLocal){
+    const arr = lsGetAll();
+    const idx = arr.findIndex(x=>x.id===data.id);
+    if (idx>-1) arr[idx] = { ...arr[idx], ...data };
+    lsSaveAll(arr);
+    return { ok:true };
+  }
+  return apiPost({ action:'update', data });
+}
+async function apiDelete(id){
+  if (useLocal){ lsSaveAll(lsGetAll().filter(x=>x.id!==id)); return { ok:true }; }
+  return apiPost({ action:'delete', id });
+}
+async function apiToggleStatus(id, foto){
+  if (useLocal){
+    const arr = lsGetAll();
+    const idx = arr.findIndex(x=>x.id===id);
+    if (idx>-1){
+      arr[idx].status = arr[idx].status==='Selesai' ? 'Rencana' : 'Selesai';
+      if (typeof foto === 'string' && foto !== '') arr[idx].foto = foto;
+    }
+    lsSaveAll(arr);
+    return { ok:true };
+  }
+  return apiPost({ action:'toggleStatus', id, foto });
+}
+async function apiPost(payload){
+  const res = await fetch(CONFIG.API_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+function getProfilLocal(){ return JSON.parse(localStorage.getItem(LS_PROFIL_KEY) || 'null') || STATE.profil; }
+function saveProfilLocal(data){ localStorage.setItem(LS_PROFIL_KEY, JSON.stringify(data)); }
+
+/* ============================================================
+ *  UTIL
+ * ============================================================ */
+
+/**
+ * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
+ * Ini yang memperbaiki bug "Invalid Date".
+ */
+function toDateOnlyStr(input){
+  if (!input) return '';
+  if (typeof input !== 'string') return '';
+  const m = input.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (m) return m[1];
+  const d = new Date(input);
+  if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+  return '';
+}
+
+function fmtTanggalIndo(iso){
+  const clean = toDateOnlyStr(iso);
+  if (!clean) return '';
+  const d = new Date(clean + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function fmtTanggalSingkat(iso){
+  const clean = toDateOnlyStr(iso);
+  if (!clean) return '';
+  const d = new Date(clean + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short' });
+}
+function fmtBulanTahun(iso){
+  const clean = toDateOnlyStr(iso);
+  if (!clean) return '';
+  const d = new Date(clean + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('id-ID', { month:'long', year:'numeric' });
+}
+function daysBetween(iso){
+  const clean = toDateOnlyStr(iso);
+  if (!clean) return 0;
+  const today  = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(clean + 'T00:00:00');
+  if (isNaN(target.getTime())) return 0;
+  return Math.round((target - today) / 86400000);
+}
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function hashRot(id){
+  let h = 0;
+  for (let i=0;i<String(id).length;i++) h = (h*31 + String(id).charCodeAt(i)) % 1000;
+  return ['rot1','rot2','rot3','rot4'][h % 4];
+}
+function catMeta(k){ return CATEGORY_META[k] || CATEGORY_META['Lainnya']; }
+
+function showToast(msg, isError=false){
+  let t = document.getElementById('appToast');
+  if (!t){
+    t = document.createElement('div');
+    t.id = 'appToast';
+    Object.assign(t.style,{
+      position:'fixed', left:'50%', transform:'translateX(-50%)',
+      bottom:'96px', zIndex:'60', color:'#fff', fontSize:'12px',
+      fontWeight:'600', padding:'8px 16px', borderRadius:'9999px',
+      boxShadow:'0 8px 18px -6px rgba(64,42,61,.4)',
+      transition:'opacity .25s ease', maxWidth:'85%', textAlign:'center'
+    });
+    document.body.appendChild(t);
+  }
+  t.style.background = isError ? '#c0392b' : 'var(--rose-deep)';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 2400);
+}
+
+/**
+ * Validasi & bersihkan nilai waktu dari input type="time".
+ * - Kembalikan "HH:MM" kalau valid
+ * - Kembalikan "" kalau kosong atau tidak valid
+ * Ini mencegah nilai aneh (undefined, null, "Invalid Date") masuk ke server.
+ */
+function cleanWaktuInput(val){
+  if (!val || typeof val !== 'string') return '';
+  const trimmed = val.trim();
+  // Format HH:MM atau HH:MM:SS (browser kadang kirim detik juga)
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(trimmed)) return trimmed.slice(0, 5);
+  return '';
+}
+
+/**
+ * Tampilkan waktu di UI — sembunyikan kalau formatnya tidak bersih.
+ */
+function cleanWaktu(w){
+  return (typeof w === 'string' && /^\d{2}:\d{2}$/.test(w)) ? w : '';
+}
+
+/**
+ * Resize + kompres foto jadi data URL kecil agar muat di sel Google Sheets.
+ */
+function resizeImageFile(file, maxDim=640, quality=0.6){
+  const MAX_CHARS = 45000;
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if (w > h){ if (w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; } }
+        else       { if (h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; } }
+
+        const draw = (dw, dh) => {
+          const c = document.createElement('canvas');
+          c.width = dw; c.height = dh;
+          c.getContext('2d').drawImage(img, 0, 0, dw, dh);
+          return c;
+        };
+
+        let curW = w, curH = h, q = quality;
+        let canvas = draw(curW, curH);
+        let dataUrl = canvas.toDataURL('image/jpeg', q);
+
+        let tries = 0;
+        while (dataUrl.length > MAX_CHARS && tries < 5){
+          q = Math.max(0.3, q - 0.12);
+          dataUrl = canvas.toDataURL('image/jpeg', q);
+          tries++;
+        }
+        let shrinkTries = 0;
+        while (dataUrl.length > MAX_CHARS && curW > 160 && shrinkTries < 6){
+          curW = Math.round(curW * 0.82);
+          curH = Math.round(curH * 0.82);
+          canvas = draw(curW, curH);
+          dataUrl = canvas.toDataURL('image/jpeg', Math.max(0.35, q));
+          shrinkTries++;
+        }
+        if (dataUrl.length > MAX_CHARS){
+          reject(new Error('Foto masih terlalu besar setelah dikompres'));
+          return;
+        }
+        resolve(dataUrl);
       };
+      img.onerror = () => reject(new Error('Gagal membaca gambar'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Gagal membaca file'));
+    reader.readAsDataURL(file);
+  });
+}
 
-      const CATEGORY_META = {
-        Makan: { emoji: "🍜", color: "#E2725B" },
-        Nonton: { emoji: "🎬", color: "#4A3F6B" },
-        "Jalan-jalan": { emoji: "🌳", color: "#4F8F6B" },
-        Rumah: { emoji: "🏠", color: "#C77D3E" },
-        Kejutan: { emoji: "🎁", color: "#E3A857" },
-        Olahraga: { emoji: "🏃", color: "#3B7DBF" },
-        Belanja: { emoji: "🛍️", color: "#D45D9C" },
-        Piknik: { emoji: "🧺", color: "#8AA05C" },
-        Konser: { emoji: "🎤", color: "#8452A6" },
-        Traveling: { emoji: "✈️", color: "#2FA0A0" },
-        Kopi: { emoji: "☕", color: "#7A5238" },
-        "Ulang Tahun": { emoji: "🎂", color: "#E0568A" },
-        Belajar: { emoji: "📚", color: "#5C6B8A" },
-        Lainnya: { emoji: "💌", color: "#B05C7E" },
-      };
-
-      let STATE = {
-        jadwal: [],
-        profil: { namaA: "Aku", namaB: "Kamu", jadian: "" },
-        filterKategori: "Semua",
-        editingId: null,
-        currentPage: "beranda",
-      };
-
-      /* ============================================================
-       *  STORAGE LAYER
-       * ============================================================ */
-      const LS_KEY = "jadwalKencan_data";
-      const LS_PROFIL_KEY = "jadwalKencan_profil";
-      const useLocal = !CONFIG.API_URL;
-
-      function lsGetAll() {
-        return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
-      }
-      function lsSaveAll(arr) {
-        localStorage.setItem(LS_KEY, JSON.stringify(arr));
-      }
-
-      async function apiList() {
-        if (useLocal) return { ok: true, data: lsGetAll() };
-        const res = await fetch(
-          `${CONFIG.API_URL}?action=list&_ts=${Date.now()}`,
-          { cache: "no-store" },
-        );
-        return res.json();
-      }
-      async function apiGetProfil() {
-        if (useLocal) return { ok: true, data: getProfilLocal() };
-        const res = await fetch(
-          `${CONFIG.API_URL}?action=profil&_ts=${Date.now()}`,
-          { cache: "no-store" },
-        );
-        return res.json();
-      }
-      async function apiSaveProfil(data) {
-        if (useLocal) {
-          saveProfilLocal(data);
-          return { ok: true };
-        }
-        return apiPost({ action: "saveProfil", data });
-      }
-      async function apiAdd(data) {
-        if (useLocal) {
-          const arr = lsGetAll();
-          const item = {
-            id: "J" + Date.now(),
-            status: "Rencana",
-            dibuatPada: new Date().toISOString(),
-            foto: "",
-            ...data,
-          };
-          arr.push(item);
-          lsSaveAll(arr);
-          return { ok: true, id: item.id };
-        }
-        return apiPost({ action: "add", data });
-      }
-      async function apiUpdate(data) {
-        if (useLocal) {
-          const arr = lsGetAll();
-          const idx = arr.findIndex((x) => x.id === data.id);
-          if (idx > -1) arr[idx] = { ...arr[idx], ...data };
-          lsSaveAll(arr);
-          return { ok: true };
-        }
-        return apiPost({ action: "update", data });
-      }
-      async function apiDelete(id) {
-        if (useLocal) {
-          lsSaveAll(lsGetAll().filter((x) => x.id !== id));
-          return { ok: true };
-        }
-        return apiPost({ action: "delete", id });
-      }
-      async function apiToggleStatus(id, foto) {
-        if (useLocal) {
-          const arr = lsGetAll();
-          const idx = arr.findIndex((x) => x.id === id);
-          if (idx > -1) {
-            arr[idx].status =
-              arr[idx].status === "Selesai" ? "Rencana" : "Selesai";
-            if (typeof foto === "string" && foto !== "") arr[idx].foto = foto;
-          }
-          lsSaveAll(arr);
-          return { ok: true };
-        }
-        return apiPost({ action: "toggleStatus", id, foto });
-      }
-      async function apiPost(payload) {
-        const res = await fetch(CONFIG.API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-        });
-        return res.json();
-      }
-      function getProfilLocal() {
-        return (
-          JSON.parse(localStorage.getItem(LS_PROFIL_KEY) || "null") ||
-          STATE.profil
-        );
-      }
-      function saveProfilLocal(data) {
-        localStorage.setItem(LS_PROFIL_KEY, JSON.stringify(data));
-      }
-
-      /* ============================================================
-       *  UTIL
-       * ============================================================ */
-
-      /**
-       * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
-       * Ini yang memperbaiki bug "Invalid Date".
-       */
-      function toDateOnlyStr(input) {
-        if (!input) return "";
-        if (typeof input !== "string") return "";
-        const m = input.match(/^(\d{4}-\d{2}-\d{2})/);
-        if (m) return m[1];
-        const d = new Date(input);
-        if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-        return "";
-      }
-
-      function fmtTanggalIndo(iso) {
-        const clean = toDateOnlyStr(iso);
-        if (!clean) return "";
-        const d = new Date(clean + "T00:00:00");
-        if (isNaN(d.getTime())) return "";
-        return d.toLocaleDateString("id-ID", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
-      }
-      function fmtTanggalSingkat(iso) {
-        const clean = toDateOnlyStr(iso);
-        if (!clean) return "";
-        const d = new Date(clean + "T00:00:00");
-        if (isNaN(d.getTime())) return "";
-        return d.toLocaleDateString("id-ID", {
-          day: "2-digit",
-          month: "short",
-        });
-      }
-      function fmtBulanTahun(iso) {
-        const clean = toDateOnlyStr(iso);
-        if (!clean) return "";
-        const d = new Date(clean + "T00:00:00");
-        if (isNaN(d.getTime())) return "";
-        return d.toLocaleDateString("id-ID", {
-          month: "long",
-          year: "numeric",
-        });
-      }
-      function daysBetween(iso) {
-        const clean = toDateOnlyStr(iso);
-        if (!clean) return 0;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const target = new Date(clean + "T00:00:00");
-        if (isNaN(target.getTime())) return 0;
-        return Math.round((target - today) / 86400000);
-      }
-      function escapeHtml(str = "") {
-        return String(str).replace(
-          /[&<>"']/g,
-          (m) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[m],
-        );
-      }
-      function hashRot(id) {
-        let h = 0;
-        for (let i = 0; i < String(id).length; i++)
-          h = (h * 31 + String(id).charCodeAt(i)) % 1000;
-        return ["rot1", "rot2", "rot3", "rot4"][h % 4];
-      }
-      function catMeta(k) {
-        return CATEGORY_META[k] || CATEGORY_META["Lainnya"];
-      }
-
-      function showToast(msg, isError = false) {
-        let t = document.getElementById("appToast");
-        if (!t) {
-          t = document.createElement("div");
-          t.id = "appToast";
-          Object.assign(t.style, {
-            position: "fixed",
-            left: "50%",
-            transform: "translateX(-50%)",
-            bottom: "96px",
-            zIndex: "60",
-            color: "#fff",
-            fontSize: "12px",
-            fontWeight: "600",
-            padding: "8px 16px",
-            borderRadius: "9999px",
-            boxShadow: "0 8px 18px -6px rgba(64,42,61,.4)",
-            transition: "opacity .25s ease",
-            maxWidth: "85%",
-            textAlign: "center",
-          });
-          document.body.appendChild(t);
-        }
-        t.style.background = isError ? "#c0392b" : "var(--rose-deep)";
-        t.textContent = msg;
-        t.style.opacity = "1";
-        clearTimeout(t._hideTimer);
-        t._hideTimer = setTimeout(() => {
-          t.style.opacity = "0";
-        }, 2400);
-      }
-
-      /**
-       * Validasi & bersihkan nilai waktu dari input type="time".
-       * - Kembalikan "HH:MM" kalau valid
-       * - Kembalikan "" kalau kosong atau tidak valid
-       * Ini mencegah nilai aneh (undefined, null, "Invalid Date") masuk ke server.
-       */
-      function cleanWaktuInput(val) {
-        if (!val || typeof val !== "string") return "";
-        const trimmed = val.trim();
-        // Format HH:MM atau HH:MM:SS (browser kadang kirim detik juga)
-        if (/^\d{2}:\d{2}(:\d{2})?$/.test(trimmed)) return trimmed.slice(0, 5);
-        return "";
-      }
-
-      /**
-       * Tampilkan waktu di UI — sembunyikan kalau formatnya tidak bersih.
-       */
-      function cleanWaktu(w) {
-        return typeof w === "string" && /^\d{2}:\d{2}$/.test(w) ? w : "";
-      }
-
-      /**
-       * Resize + kompres foto jadi data URL kecil agar muat di sel Google Sheets.
-       */
-      function resizeImageFile(file, maxDim = 640, quality = 0.6) {
-        const MAX_CHARS = 45000;
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              let w = img.width,
-                h = img.height;
-              if (w > h) {
-                if (w > maxDim) {
-                  h = Math.round((h * maxDim) / w);
-                  w = maxDim;
-                }
-              } else {
-                if (h > maxDim) {
-                  w = Math.round((w * maxDim) / h);
-                  h = maxDim;
-                }
-              }
-
-              const draw = (dw, dh) => {
-                const c = document.createElement("canvas");
-                c.width = dw;
-                c.height = dh;
-                c.getContext("2d").drawImage(img, 0, 0, dw, dh);
-                return c;
-              };
-
-              let curW = w,
-                curH = h,
-                q = quality;
-              let canvas = draw(curW, curH);
-              let dataUrl = canvas.toDataURL("image/jpeg", q);
-
-              let tries = 0;
-              while (dataUrl.length > MAX_CHARS && tries < 5) {
-                q = Math.max(0.3, q - 0.12);
-                dataUrl = canvas.toDataURL("image/jpeg", q);
-                tries++;
-              }
-              let shrinkTries = 0;
-              while (
-                dataUrl.length > MAX_CHARS &&
-                curW > 160 &&
-                shrinkTries < 6
-              ) {
-                curW = Math.round(curW * 0.82);
-                curH = Math.round(curH * 0.82);
-                canvas = draw(curW, curH);
-                dataUrl = canvas.toDataURL("image/jpeg", Math.max(0.35, q));
-                shrinkTries++;
-              }
-              if (dataUrl.length > MAX_CHARS) {
-                reject(new Error("Foto masih terlalu besar setelah dikompres"));
-                return;
-              }
-              resolve(dataUrl);
-            };
-            img.onerror = () => reject(new Error("Gagal membaca gambar"));
-            img.src = e.target.result;
-          };
-          reader.onerror = () => reject(new Error("Gagal membaca file"));
-          reader.readAsDataURL(file);
-        });
-      }
-
-      /* ============================================================
-       *  POLAROID CARD BUILDER
-       * ============================================================ */
-      function polaroidCard(j, opts = {}) {
-        const cat = catMeta(j.kategori);
-        const rot = hashRot(j.id);
-        const dim = opts.dim ? "opacity-80 saturate-[.7]" : "";
-        const photoInner = j.foto
-          ? `<img src="${j.foto}" alt="">`
-          : `<span>${cat.emoji}</span>`;
-        const waktuLabel = cleanWaktu(j.waktu)
-          ? ` · ${cleanWaktu(j.waktu)}`
-          : "";
-        return `
+/* ============================================================
+ *  POLAROID CARD BUILDER
+ * ============================================================ */
+function polaroidCard(j, opts={}){
+  const cat  = catMeta(j.kategori);
+  const rot  = hashRot(j.id);
+  const dim  = opts.dim ? 'opacity-80 saturate-[.7]' : '';
+  const photoInner = j.foto
+    ? `<img src="${j.foto}" alt="">`
+    : `<span>${cat.emoji}</span>`;
+  const waktuLabel = cleanWaktu(j.waktu) ? ` · ${cleanWaktu(j.waktu)}` : '';
+  return `
   <div class="polaroid ${rot} ${dim} relative" data-open="${j.id}" tabindex="0">
     <div class="pin" style="background:${cat.color}"></div>
     <div class="photo" style="background:${cat.color}22;">${photoInner}</div>
     <p class="caption truncate">${escapeHtml(j.judul)}</p>
-    <p class="text-center text-[10px] text-[var(--ink-soft)] mt-0.5">${fmtTanggalSingkat(j.tanggal)}${waktuLabel}${j.status === "Selesai" ? " · selesai ✓" : ""}</p>
+    <p class="text-center text-[10px] text-[var(--ink-soft)] mt-0.5">${fmtTanggalSingkat(j.tanggal)}${waktuLabel}${j.status==='Selesai' ? ' · selesai ✓' : ''}</p>
   </div>`;
-      }
+}
 
-      /* ============================================================
-       *  RENDER: HERO
-       * ============================================================ */
-      function upcomingSorted() {
-        return STATE.jadwal
-          .filter((j) => j.status !== "Selesai" && daysBetween(j.tanggal) >= 0)
-          .sort(
-            (a, b) =>
-              toDateOnlyStr(a.tanggal).localeCompare(
-                toDateOnlyStr(b.tanggal),
-              ) || (a.waktu || "").localeCompare(b.waktu || ""),
-          );
-      }
-      function renderHero() {
-        const hero = document.getElementById("heroNext");
-        const upcoming = upcomingSorted();
-        if (upcoming.length === 0) {
-          hero.innerHTML = `
+/* ============================================================
+ *  RENDER: HERO
+ * ============================================================ */
+function upcomingSorted(){
+  return STATE.jadwal
+    .filter(j => j.status !== 'Selesai' && daysBetween(j.tanggal) >= 0)
+    .sort((a,b)=> toDateOnlyStr(a.tanggal).localeCompare(toDateOnlyStr(b.tanggal)) || (a.waktu||'').localeCompare(b.waktu||''));
+}
+function renderHero(){
+  const hero     = document.getElementById('heroNext');
+  const upcoming = upcomingSorted();
+  if (upcoming.length === 0){
+    hero.innerHTML = `
       <div class="rounded-3xl border-2 border-dashed border-[var(--rose)]/40 bg-white/70 text-center py-8 px-6">
         <p class="font-display text-xl font-semibold text-[var(--rose-deep)]">Papan masih kosong~</p>
         <p class="text-xs text-[var(--ink-soft)] mt-1">Tempel satu rencana kencan, yuk 📌</p>
       </div>`;
-          return;
-        }
-        const next = upcoming[0];
-        const d = daysBetween(next.tanggal);
-        const cat = catMeta(next.kategori);
-        const label =
-          d === 0 ? "Hari ini! 🎉" : d === 1 ? "Besok!" : `${d} hari lagi`;
-        const waktuHero = cleanWaktu(next.waktu)
-          ? ` · ${cleanWaktu(next.waktu)}`
-          : "";
-        hero.innerHTML = `
+    return;
+  }
+  const next = upcoming[0];
+  const d    = daysBetween(next.tanggal);
+  const cat  = catMeta(next.kategori);
+  const label = d === 0 ? 'Hari ini! 🎉' : d === 1 ? 'Besok!' : `${d} hari lagi`;
+  const waktuHero = cleanWaktu(next.waktu) ? ` · ${cleanWaktu(next.waktu)}` : '';
+  hero.innerHTML = `
     <div class="rounded-3xl px-5 py-6 relative overflow-hidden text-white shadow-xl"
          style="background:linear-gradient(155deg, var(--rose), var(--rose-deep));">
       <div class="absolute -right-4 -top-4 text-7xl opacity-15">${cat.emoji}</div>
       <p class="text-[11px] uppercase tracking-wide font-semibold opacity-85">Kencan berikutnya</p>
       <h2 class="font-display text-2xl font-semibold mt-1 leading-snug">${escapeHtml(next.judul)}</h2>
       <p class="text-xs mt-1 opacity-90">${fmtTanggalIndo(next.tanggal)}${waktuHero}</p>
-      ${next.lokasi ? `<p class="text-xs opacity-90">📍 ${escapeHtml(next.lokasi)}</p>` : ""}
+      ${next.lokasi ? `<p class="text-xs opacity-90">📍 ${escapeHtml(next.lokasi)}</p>` : ''}
       <div class="inline-block mt-3 bg-white text-[var(--rose-deep)] font-display font-semibold rounded-full px-4 py-1.5 text-sm shadow">${label}</div>
     </div>`;
-      }
+}
 
-      function renderStats() {
-        const total = STATE.jadwal.length;
-        const selesai = STATE.jadwal.filter(
-          (j) => j.status === "Selesai",
-        ).length;
-        document.getElementById("statTotal").textContent = total;
-        document.getElementById("statSelesai").textContent = selesai;
-        document.getElementById("statHari").textContent = STATE.profil.jadian
-          ? Math.abs(daysBetween(STATE.profil.jadian))
-          : "–";
-      }
+function renderStats(){
+  const total   = STATE.jadwal.length;
+  const selesai = STATE.jadwal.filter(j=>j.status==='Selesai').length;
+  document.getElementById('statTotal').textContent   = total;
+  document.getElementById('statSelesai').textContent = selesai;
+  document.getElementById('statHari').textContent    = STATE.profil.jadian ? Math.abs(daysBetween(STATE.profil.jadian)) : '–';
+}
 
-      function renderBerandaBoard() {
-        const board = document.getElementById("berandaBoard");
-        const items = upcomingSorted().slice(0, 4);
-        if (items.length === 0) {
-          board.innerHTML = `<p class="text-center text-xs text-[var(--ink-soft)] py-8">belum ada tiket yang tertempel di sini</p>`;
-          return;
-        }
-        board.innerHTML = `<div class="grid grid-cols-2 gap-4">${items.map((j) => polaroidCard(j)).join("")}</div>`;
-        attachOpenHandlers(board);
-      }
+function renderBerandaBoard(){
+  const board = document.getElementById('berandaBoard');
+  const items = upcomingSorted().slice(0,4);
+  if (items.length === 0){
+    board.innerHTML = `<p class="text-center text-xs text-[var(--ink-soft)] py-8">belum ada tiket yang tertempel di sini</p>`;
+    return;
+  }
+  board.innerHTML = `<div class="grid grid-cols-2 gap-4">${items.map(j=>polaroidCard(j)).join('')}</div>`;
+  attachOpenHandlers(board);
+}
 
-      /* ============================================================
-       *  RENDER: FILTER TABS
-       * ============================================================ */
-      function renderFilterTabs() {
-        const wrap = document.getElementById("filterTabs");
-        const kategoris = ["Semua", ...Object.keys(CATEGORY_META)];
-        wrap.innerHTML = kategoris
-          .map((k) => {
-            const active = STATE.filterKategori === k;
-            const meta =
-              k === "Semua"
-                ? { emoji: "💫", color: "var(--rose)" }
-                : catMeta(k);
-            const bg = active ? meta.color : "#fff";
-            const border = active ? meta.color : "var(--line)";
-            const tc = active ? "#fff" : "var(--ink)";
-            return `<button data-kategori="${k}" data-active="${active}" style="background:${bg};border:1.5px solid ${border};color:${tc}" class="chip rounded-full px-3.5 py-1.5 text-xs font-semibold flex-shrink-0">${meta.emoji} ${k}</button>`;
-          })
-          .join("");
-        wrap.querySelectorAll("[data-kategori]").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            STATE.filterKategori = btn.dataset.kategori;
-            renderFilterTabs();
-            renderJadwalBoard();
-          });
-        });
-      }
+/* ============================================================
+ *  RENDER: FILTER TABS
+ * ============================================================ */
+function renderFilterTabs(){
+  const wrap     = document.getElementById('filterTabs');
+  const kategoris = ['Semua', ...Object.keys(CATEGORY_META)];
+  wrap.innerHTML = kategoris.map(k => {
+    const active = STATE.filterKategori === k;
+    const meta   = k === 'Semua' ? { emoji:'💫', color: 'var(--rose)' } : catMeta(k);
+    const bg     = active ? meta.color : '#fff';
+    const border = active ? meta.color : 'var(--line)';
+    const tc     = active ? '#fff' : 'var(--ink)';
+    return `<button data-kategori="${k}" data-active="${active}" style="background:${bg};border:1.5px solid ${border};color:${tc}" class="chip rounded-full px-3.5 py-1.5 text-xs font-semibold flex-shrink-0">${meta.emoji} ${k}</button>`;
+  }).join('');
+  wrap.querySelectorAll('[data-kategori]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ STATE.filterKategori = btn.dataset.kategori; renderFilterTabs(); renderJadwalBoard(); });
+  });
+}
 
-      /* ============================================================
-       *  RENDER: JADWAL BOARD
-       * ============================================================ */
-      function renderJadwalBoard() {
-        const board = document.getElementById("jadwalBoard");
-        const empty = document.getElementById("jadwalEmpty");
-        let items = STATE.jadwal.filter(
-          (j) => (j.status || "Rencana") !== "Selesai",
-        );
-        if (STATE.filterKategori !== "Semua")
-          items = items.filter((j) => j.kategori === STATE.filterKategori);
-        items = items.sort((a, b) =>
-          toDateOnlyStr(a.tanggal).localeCompare(toDateOnlyStr(b.tanggal)),
-        );
+/* ============================================================
+ *  RENDER: JADWAL BOARD
+ * ============================================================ */
+function renderJadwalBoard(){
+  const board = document.getElementById('jadwalBoard');
+  const empty = document.getElementById('jadwalEmpty');
+  let items   = STATE.jadwal.filter(j => (j.status || 'Rencana') !== 'Selesai');
+  if (STATE.filterKategori !== 'Semua') items = items.filter(j => j.kategori === STATE.filterKategori);
+  items = items.sort((a,b)=> toDateOnlyStr(a.tanggal).localeCompare(toDateOnlyStr(b.tanggal)));
 
-        if (items.length === 0) {
-          board.innerHTML = "";
-          board.classList.add("hidden");
-          empty.classList.remove("hidden");
-          empty.textContent =
-            "belum ada rencana di kategori ini, ayo tempel satu! 🌸";
-          return;
-        }
-        board.classList.remove("hidden");
-        empty.classList.add("hidden");
-        board.innerHTML = items.map((j) => polaroidCard(j)).join("");
-        attachOpenHandlers(board);
-      }
+  if (items.length === 0){
+    board.innerHTML = ''; board.classList.add('hidden');
+    empty.classList.remove('hidden');
+    empty.textContent = 'belum ada rencana di kategori ini, ayo tempel satu! 🌸';
+    return;
+  }
+  board.classList.remove('hidden'); empty.classList.add('hidden');
+  board.innerHTML = items.map(j=>polaroidCard(j)).join('');
+  attachOpenHandlers(board);
+}
 
-      /* ============================================================
-       *  RENDER: KENANGAN
-       * ============================================================ */
-      function renderKenangan() {
-        const wrap = document.getElementById("kenanganWrap");
-        const empty = document.getElementById("kenanganEmpty");
-        const items = STATE.jadwal
-          .filter((j) => j.status === "Selesai")
-          .sort((a, b) =>
-            toDateOnlyStr(b.tanggal).localeCompare(toDateOnlyStr(a.tanggal)),
-          );
+/* ============================================================
+ *  RENDER: KENANGAN
+ * ============================================================ */
+function renderKenangan(){
+  const wrap  = document.getElementById('kenanganWrap');
+  const empty = document.getElementById('kenanganEmpty');
+  const items = STATE.jadwal.filter(j=>j.status==='Selesai')
+    .sort((a,b)=> toDateOnlyStr(b.tanggal).localeCompare(toDateOnlyStr(a.tanggal)));
 
-        if (items.length === 0) {
-          wrap.innerHTML = "";
-          empty.classList.remove("hidden");
-          empty.textContent =
-            'belum ada kenangan tersimpan. tandai kencan yang sudah dijalani sebagai "selesai" ya 🤍';
-          return;
-        }
-        empty.classList.add("hidden");
-        const groups = {};
-        items.forEach((j) => {
-          const key = fmtBulanTahun(j.tanggal) || "Tanggal tidak diketahui";
-          (groups[key] = groups[key] || []).push(j);
-        });
-        wrap.innerHTML = Object.entries(groups)
-          .map(
-            ([bulan, arr]) => `
+  if (items.length === 0){
+    wrap.innerHTML = ''; empty.classList.remove('hidden');
+    empty.textContent = 'belum ada kenangan tersimpan. tandai kencan yang sudah dijalani sebagai "selesai" ya 🤍';
+    return;
+  }
+  empty.classList.add('hidden');
+  const groups = {};
+  items.forEach(j=>{
+    const key = fmtBulanTahun(j.tanggal) || 'Tanggal tidak diketahui';
+    (groups[key] = groups[key] || []).push(j);
+  });
+  wrap.innerHTML = Object.entries(groups).map(([bulan, arr])=> `
     <div class="mb-6">
       <p class="font-hand text-2xl text-[var(--rose-deep)] mb-2">${bulan}</p>
       <div class="cork rounded-2xl p-4 grid grid-cols-2 gap-4">
-        ${arr.map((j) => polaroidCard(j, { dim: true })).join("")}
+        ${arr.map(j=>polaroidCard(j,{dim:true})).join('')}
       </div>
-    </div>`,
-          )
-          .join("");
-        attachOpenHandlers(wrap);
-      }
+    </div>`).join('');
+  attachOpenHandlers(wrap);
+}
 
-      /* ============================================================
-       *  RENDER: KATEGORI STATS (Profil)
-       * ============================================================ */
-      function renderKategoriStats() {
-        const wrap = document.getElementById("kategoriStats");
-        const counts = {};
-        STATE.jadwal.forEach((j) => {
-          counts[j.kategori] = (counts[j.kategori] || 0) + 1;
-        });
-        const entries = Object.entries(counts)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 6);
-        if (entries.length === 0) {
-          wrap.innerHTML = `<p class="text-xs text-[var(--ink-soft)]">belum ada data kategori</p>`;
-          return;
-        }
-        const max = entries[0][1];
-        wrap.innerHTML = entries
-          .map(([k, v]) => {
-            const meta = catMeta(k);
-            const pct = Math.max(12, Math.round((v / max) * 100));
-            return `
+/* ============================================================
+ *  RENDER: KATEGORI STATS (Profil)
+ * ============================================================ */
+function renderKategoriStats(){
+  const wrap    = document.getElementById('kategoriStats');
+  const counts  = {};
+  STATE.jadwal.forEach(j=>{ counts[j.kategori] = (counts[j.kategori]||0) + 1; });
+  const entries = Object.entries(counts).sort((a,b)=> b[1]-a[1]).slice(0,6);
+  if (entries.length === 0){
+    wrap.innerHTML = `<p class="text-xs text-[var(--ink-soft)]">belum ada data kategori</p>`;
+    return;
+  }
+  const max = entries[0][1];
+  wrap.innerHTML = entries.map(([k,v])=>{
+    const meta = catMeta(k);
+    const pct  = Math.max(12, Math.round((v/max)*100));
+    return `
     <div class="flex items-center gap-2">
       <span class="text-base w-6">${meta.emoji}</span>
       <div class="flex-1">
@@ -1233,36 +972,31 @@
         <div class="h-2 rounded-full bg-[var(--line)]"><div class="h-2 rounded-full" style="width:${pct}%; background:${meta.color}"></div></div>
       </div>
     </div>`;
-          })
-          .join("");
-      }
+  }).join('');
+}
 
-      /* ============================================================
-       *  DETAIL MODAL (tap polaroid)
-       * ============================================================ */
-      function attachOpenHandlers(container) {
-        container.querySelectorAll("[data-open]").forEach((el) => {
-          el.addEventListener("click", () => openDetail(el.dataset.open));
-          el.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") openDetail(el.dataset.open);
-          });
-        });
-      }
-      const detailBackdrop = document.getElementById("detailBackdrop");
+/* ============================================================
+ *  DETAIL MODAL (tap polaroid)
+ * ============================================================ */
+function attachOpenHandlers(container){
+  container.querySelectorAll('[data-open]').forEach(el=>{
+    el.addEventListener('click',    ()=> openDetail(el.dataset.open));
+    el.addEventListener('keypress', e=>{ if (e.key==='Enter') openDetail(el.dataset.open); });
+  });
+}
+const detailBackdrop = document.getElementById('detailBackdrop');
 
-      function openDetail(id) {
-        const j = STATE.jadwal.find((x) => x.id === id);
-        if (!j) return;
-        const cat = catMeta(j.kategori);
-        const done = j.status === "Selesai";
-        const waktuStr = cleanWaktu(j.waktu)
-          ? ` · ${cleanWaktu(j.waktu)} WIB`
-          : "";
-        const iconBlock = j.foto
-          ? `<img src="${j.foto}" class="w-full h-40 object-cover rounded-2xl mb-2" alt="">`
-          : `<div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background:${cat.color}22">${cat.emoji}</div>`;
+function openDetail(id){
+  const j = STATE.jadwal.find(x=>x.id===id);
+  if (!j) return;
+  const cat      = catMeta(j.kategori);
+  const done     = j.status === 'Selesai';
+  const waktuStr = cleanWaktu(j.waktu) ? ` · ${cleanWaktu(j.waktu)} WIB` : '';
+  const iconBlock = j.foto
+    ? `<img src="${j.foto}" class="w-full h-40 object-cover rounded-2xl mb-2" alt="">`
+    : `<div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl" style="background:${cat.color}22">${cat.emoji}</div>`;
 
-        document.getElementById("detailContent").innerHTML = `
+  document.getElementById('detailContent').innerHTML = `
     <div class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"></div>
     <button id="btnCloseDetail" class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none">&times;</button>
     <div class="text-center mb-3">
@@ -1271,495 +1005,378 @@
     </div>
     <h2 class="font-display text-2xl font-semibold text-center mb-1">${escapeHtml(j.judul)}</h2>
     <p class="text-center text-xs text-[var(--ink-soft)] mb-4">${fmtTanggalIndo(j.tanggal)}${waktuStr}</p>
-    ${j.lokasi ? `<p class="text-sm mb-1">📍 ${escapeHtml(j.lokasi)}</p>` : ""}
-    ${j.giliran ? `<p class="text-sm mb-1">🙋 Giliran: ${escapeHtml(j.giliran)}</p>` : ""}
-    ${j.catatan ? `<p class="font-hand text-xl text-[var(--rose-deep)] mt-3">"${escapeHtml(j.catatan)}"</p>` : ""}
-    ${
-      !done
-        ? `
+    ${j.lokasi  ? `<p class="text-sm mb-1">📍 ${escapeHtml(j.lokasi)}</p>`  : ''}
+    ${j.giliran ? `<p class="text-sm mb-1">🙋 Giliran: ${escapeHtml(j.giliran)}</p>` : ''}
+    ${j.catatan ? `<p class="font-hand text-xl text-[var(--rose-deep)] mt-3">"${escapeHtml(j.catatan)}"</p>` : ''}
+    ${!done ? `
     <div class="mt-4">
       <label class="text-xs font-semibold text-[var(--rose-deep)]">Tambahkan foto kenangan (opsional)</label>
       <input type="file" id="fotoSelesaiInput" accept="image/*" class="w-full mt-1 text-xs">
       <div id="fotoPreviewWrap" class="hidden mt-2"><img id="fotoPreviewImg" class="w-full rounded-xl max-h-40 object-cover" alt=""></div>
-    </div>`
-        : ""
-    }
+    </div>` : ''}
     <div class="flex gap-2 mt-6 pb-1">
-      <button id="btnToggleDetail" class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm">${done ? "Batal selesai" : "Tandai selesai ✓"}</button>
+      <button id="btnToggleDetail" class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm">${done ? 'Batal selesai' : 'Tandai selesai ✓'}</button>
       <button id="btnEditDetail" class="px-4 rounded-full border border-[var(--line)] text-sm font-semibold">Ubah</button>
       <button id="btnDeleteDetail" class="px-4 rounded-full text-red-500 text-sm font-semibold">Hapus</button>
     </div>`;
 
-        detailBackdrop.classList.add("open");
-        document
-          .getElementById("btnCloseDetail")
-          .addEventListener("click", () =>
-            detailBackdrop.classList.remove("open"),
-          );
+  detailBackdrop.classList.add('open');
+  document.getElementById('btnCloseDetail').addEventListener('click', ()=> detailBackdrop.classList.remove('open'));
 
-        if (!done) {
-          document
-            .getElementById("fotoSelesaiInput")
-            .addEventListener("change", (e) => {
-              const file = e.target.files && e.target.files[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                document
-                  .getElementById("fotoPreviewWrap")
-                  .classList.remove("hidden");
-                document.getElementById("fotoPreviewImg").src =
-                  ev.target.result;
-              };
-              reader.readAsDataURL(file);
-            });
+  if (!done){
+    document.getElementById('fotoSelesaiInput').addEventListener('change', e=>{
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        document.getElementById('fotoPreviewWrap').classList.remove('hidden');
+        document.getElementById('fotoPreviewImg').src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('btnToggleDetail').addEventListener('click', async ()=>{
+    const btn = document.getElementById('btnToggleDetail');
+    let fotoData = j.foto || '';
+
+    if (!done){
+      const fInput = document.getElementById('fotoSelesaiInput');
+      if (fInput && fInput.files && fInput.files[0]){
+        btn.disabled = true; btn.textContent = 'Memproses foto...';
+        try {
+          fotoData = await resizeImageFile(fInput.files[0]);
+        } catch(err){
+          btn.disabled = false; btn.textContent = 'Tandai selesai ✓';
+          showToast('Foto gagal diproses, coba foto lain ya', true);
+          return;
         }
-
-        document
-          .getElementById("btnToggleDetail")
-          .addEventListener("click", async () => {
-            const btn = document.getElementById("btnToggleDetail");
-            let fotoData = j.foto || "";
-
-            if (!done) {
-              const fInput = document.getElementById("fotoSelesaiInput");
-              if (fInput && fInput.files && fInput.files[0]) {
-                btn.disabled = true;
-                btn.textContent = "Memproses foto...";
-                try {
-                  fotoData = await resizeImageFile(fInput.files[0]);
-                } catch (err) {
-                  btn.disabled = false;
-                  btn.textContent = "Tandai selesai ✓";
-                  showToast("Foto gagal diproses, coba foto lain ya", true);
-                  return;
-                }
-              }
-            }
-
-            const idx = STATE.jadwal.findIndex((x) => x.id === id);
-            const prevSnapshot = idx > -1 ? { ...STATE.jadwal[idx] } : null;
-            const nextStatus = done ? "Rencana" : "Selesai";
-            if (idx > -1)
-              STATE.jadwal[idx] = {
-                ...STATE.jadwal[idx],
-                status: nextStatus,
-                foto: fotoData,
-              };
-            detailBackdrop.classList.remove("open");
-            renderAll_();
-            apiToggleStatus(id, fotoData)
-              .then((res) => {
-                if (!res || !res.ok) throw new Error(res && res.error);
-              })
-              .catch((err) => {
-                if (idx > -1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
-                renderAll_();
-                showToast(
-                  "Gagal menyimpan ke Google Sheets, coba lagi ya",
-                  true,
-                );
-              });
-          });
-
-        document
-          .getElementById("btnEditDetail")
-          .addEventListener("click", () => {
-            detailBackdrop.classList.remove("open");
-            openEditModal(id);
-          });
-
-        document
-          .getElementById("btnDeleteDetail")
-          .addEventListener("click", () => {
-            if (!confirm("Hapus rencana kencan ini?")) return;
-            const idx = STATE.jadwal.findIndex((x) => x.id === id);
-            const removed = idx > -1 ? STATE.jadwal[idx] : null;
-            if (idx > -1) STATE.jadwal.splice(idx, 1);
-            detailBackdrop.classList.remove("open");
-            renderAll_();
-            apiDelete(id)
-              .then((res) => {
-                if (!res || !res.ok) throw new Error(res && res.error);
-              })
-              .catch((err) => {
-                if (removed) STATE.jadwal.splice(idx, 0, removed);
-                renderAll_();
-                showToast("Gagal menghapus, coba lagi ya", true);
-              });
-          });
       }
-      detailBackdrop.addEventListener("click", (e) => {
-        if (e.target === detailBackdrop)
-          detailBackdrop.classList.remove("open");
-      });
+    }
 
-      /* ============================================================
-       *  MODAL: TAMBAH/UBAH JADWAL
-       * ============================================================ */
-      const modalBackdrop = document.getElementById("modalBackdrop");
+    const idx          = STATE.jadwal.findIndex(x=>x.id===id);
+    const prevSnapshot = idx>-1 ? { ...STATE.jadwal[idx] } : null;
+    const nextStatus   = done ? 'Rencana' : 'Selesai';
+    if (idx>-1) STATE.jadwal[idx] = { ...STATE.jadwal[idx], status: nextStatus, foto: fotoData };
+    detailBackdrop.classList.remove('open');
+    renderAll_();
+    apiToggleStatus(id, fotoData).then(res=>{
+      if (!res || !res.ok) throw new Error(res && res.error);
+    }).catch(err=>{
+      if (idx>-1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
+      renderAll_();
+      showToast('Gagal menyimpan ke Google Sheets, coba lagi ya', true);
+    });
+  });
 
-      function renderKategoriGrid(selected) {
-        const grid = document.getElementById("fKategoriGrid");
-        grid.innerHTML = Object.entries(CATEGORY_META)
-          .map(([k, meta]) => {
-            const active = k === selected;
-            return `<button type="button" data-k="${k}"
-      style="background:${active ? meta.color : "#fff"}; border:1.5px solid ${meta.color}; color:${active ? "#fff" : "var(--ink)"}"
+  document.getElementById('btnEditDetail').addEventListener('click', ()=>{
+    detailBackdrop.classList.remove('open'); openEditModal(id);
+  });
+
+  document.getElementById('btnDeleteDetail').addEventListener('click', ()=>{
+    if (!confirm('Hapus rencana kencan ini?')) return;
+    const idx     = STATE.jadwal.findIndex(x=>x.id===id);
+    const removed = idx>-1 ? STATE.jadwal[idx] : null;
+    if (idx>-1) STATE.jadwal.splice(idx,1);
+    detailBackdrop.classList.remove('open');
+    renderAll_();
+    apiDelete(id).then(res=>{
+      if (!res || !res.ok) throw new Error(res && res.error);
+    }).catch(err=>{
+      if (removed) STATE.jadwal.splice(idx,0,removed);
+      renderAll_();
+      showToast('Gagal menghapus, coba lagi ya', true);
+    });
+  });
+}
+detailBackdrop.addEventListener('click', e=>{ if (e.target===detailBackdrop) detailBackdrop.classList.remove('open'); });
+
+/* ============================================================
+ *  MODAL: TAMBAH/UBAH JADWAL
+ * ============================================================ */
+const modalBackdrop = document.getElementById('modalBackdrop');
+
+function renderKategoriGrid(selected){
+  const grid = document.getElementById('fKategoriGrid');
+  grid.innerHTML = Object.entries(CATEGORY_META).map(([k,meta])=>{
+    const active = k === selected;
+    return `<button type="button" data-k="${k}"
+      style="background:${active ? meta.color : '#fff'}; border:1.5px solid ${meta.color}; color:${active ? '#fff' : 'var(--ink)'}"
       class="katOption rounded-xl py-2 text-[10px] font-semibold flex flex-col items-center gap-0.5">
       <span class="text-base">${meta.emoji}</span>${k}
     </button>`;
-          })
-          .join("");
-        grid.querySelectorAll(".katOption").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            document.getElementById("fKategori").value = btn.dataset.k;
-            renderKategoriGrid(btn.dataset.k);
-          });
-        });
-      }
+  }).join('');
+  grid.querySelectorAll('.katOption').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.getElementById('fKategori').value = btn.dataset.k;
+      renderKategoriGrid(btn.dataset.k);
+    });
+  });
+}
 
-      function fillGiliranOptions() {
-        const sel = document.getElementById("fGiliran");
-        sel.innerHTML = `
+function fillGiliranOptions(){
+  const sel = document.getElementById('fGiliran');
+  sel.innerHTML = `
     <option value="${STATE.profil.namaA}">${escapeHtml(STATE.profil.namaA)}</option>
     <option value="${STATE.profil.namaB}">${escapeHtml(STATE.profil.namaB)}</option>
     <option value="Bareng-bareng">Bareng-bareng</option>`;
-      }
+}
 
-      function openAddModal() {
-        STATE.editingId = null;
-        document.getElementById("modalTitle").textContent =
-          "Tempel rencana baru 📌";
-        document.getElementById("formJadwal").reset();
-        document.getElementById("fId").value = "";
-        document.getElementById("fKategori").value = "Makan";
-        document.getElementById("btnDeleteInModal").classList.add("hidden");
-        renderKategoriGrid("Makan");
-        fillGiliranOptions();
-        modalBackdrop.classList.add("open");
-      }
+function openAddModal(){
+  STATE.editingId = null;
+  document.getElementById('modalTitle').textContent = 'Tempel rencana baru 📌';
+  document.getElementById('formJadwal').reset();
+  document.getElementById('fId').value      = '';
+  document.getElementById('fKategori').value = 'Makan';
+  document.getElementById('btnDeleteInModal').classList.add('hidden');
+  renderKategoriGrid('Makan');
+  fillGiliranOptions();
+  modalBackdrop.classList.add('open');
+}
 
-      function openEditModal(id) {
-        const j = STATE.jadwal.find((x) => x.id === id);
-        if (!j) return;
-        STATE.editingId = id;
-        document.getElementById("modalTitle").textContent = "Ubah rencana ✏️";
-        document.getElementById("fId").value = j.id;
-        document.getElementById("fJudul").value = j.judul;
-        document.getElementById("fTanggal").value = toDateOnlyStr(j.tanggal);
-        // Isi waktu hanya kalau formatnya bersih HH:MM
-        document.getElementById("fWaktu").value = cleanWaktu(j.waktu) || "";
-        document.getElementById("fLokasi").value = j.lokasi || "";
-        document.getElementById("fKategori").value = j.kategori || "Lainnya";
-        document.getElementById("fCatatan").value = j.catatan || "";
-        renderKategoriGrid(j.kategori || "Lainnya");
-        fillGiliranOptions();
-        document.getElementById("fGiliran").value = j.giliran || "";
-        document.getElementById("btnDeleteInModal").classList.remove("hidden");
-        modalBackdrop.classList.add("open");
-      }
+function openEditModal(id){
+  const j = STATE.jadwal.find(x=>x.id===id);
+  if (!j) return;
+  STATE.editingId = id;
+  document.getElementById('modalTitle').textContent  = 'Ubah rencana ✏️';
+  document.getElementById('fId').value      = j.id;
+  document.getElementById('fJudul').value   = j.judul;
+  document.getElementById('fTanggal').value = toDateOnlyStr(j.tanggal);
+  // Isi waktu hanya kalau formatnya bersih HH:MM
+  document.getElementById('fWaktu').value   = cleanWaktu(j.waktu) || '';
+  document.getElementById('fLokasi').value  = j.lokasi  || '';
+  document.getElementById('fKategori').value = j.kategori || 'Lainnya';
+  document.getElementById('fCatatan').value = j.catatan || '';
+  renderKategoriGrid(j.kategori || 'Lainnya');
+  fillGiliranOptions();
+  document.getElementById('fGiliran').value = j.giliran || '';
+  document.getElementById('btnDeleteInModal').classList.remove('hidden');
+  modalBackdrop.classList.add('open');
+}
 
-      function closeModal() {
-        modalBackdrop.classList.remove("open");
-      }
+function closeModal(){ modalBackdrop.classList.remove('open'); }
 
-      document
-        .getElementById("btnOpenAdd")
-        .addEventListener("click", openAddModal);
-      document
-        .getElementById("btnCloseModal")
-        .addEventListener("click", closeModal);
-      modalBackdrop.addEventListener("click", (e) => {
-        if (e.target === modalBackdrop) closeModal();
-      });
+document.getElementById('btnOpenAdd').addEventListener('click', openAddModal);
+document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', e=>{ if (e.target===modalBackdrop) closeModal(); });
 
-      document.getElementById("formJadwal").addEventListener("submit", (e) => {
-        e.preventDefault();
+document.getElementById('formJadwal').addEventListener('submit', e=>{
+  e.preventDefault();
 
-        // ★ PERBAIKAN UTAMA: bersihkan nilai waktu sebelum dikirim ke server
-        const waktuRaw = document.getElementById("fWaktu").value;
-        const waktuBersih = cleanWaktuInput(waktuRaw);
+  // ★ PERBAIKAN UTAMA: bersihkan nilai waktu sebelum dikirim ke server
+  const waktuRaw = document.getElementById('fWaktu').value;
+  const waktuBersih = cleanWaktuInput(waktuRaw);
 
-        const formData = {
-          judul: document.getElementById("fJudul").value.trim(),
-          tanggal: document.getElementById("fTanggal").value,
-          waktu: waktuBersih, // selalu string bersih "HH:MM" atau ""
-          lokasi: document.getElementById("fLokasi").value.trim(),
-          kategori: document.getElementById("fKategori").value,
-          catatan: document.getElementById("fCatatan").value.trim(),
-          giliran: document.getElementById("fGiliran").value,
-        };
+  const formData = {
+    judul:    document.getElementById('fJudul').value.trim(),
+    tanggal:  document.getElementById('fTanggal').value,
+    waktu:    waktuBersih,    // selalu string bersih "HH:MM" atau ""
+    lokasi:   document.getElementById('fLokasi').value.trim(),
+    kategori: document.getElementById('fKategori').value,
+    catatan:  document.getElementById('fCatatan').value.trim(),
+    giliran:  document.getElementById('fGiliran').value,
+  };
 
-        if (STATE.editingId) {
-          const id = STATE.editingId;
-          const idx = STATE.jadwal.findIndex((x) => x.id === id);
-          const prevSnapshot = idx > -1 ? { ...STATE.jadwal[idx] } : null;
-          const status = prevSnapshot?.status || "Rencana";
-          if (idx > -1)
-            STATE.jadwal[idx] = {
-              ...STATE.jadwal[idx],
-              ...formData,
-              id,
-              status,
-            };
-          closeModal();
-          renderAll_();
-          apiUpdate({ ...formData, id, status })
-            .then((res) => {
-              if (!res || !res.ok) throw new Error(res && res.error);
-            })
-            .catch((err) => {
-              if (idx > -1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
-              renderAll_();
-              showToast("Gagal menyimpan perubahan, coba lagi ya", true);
-            });
-        } else {
-          const tempId = "temp-" + Date.now();
-          const newItem = {
-            id: tempId,
-            ...formData,
-            status: "Rencana",
-            dibuatPada: new Date().toISOString(),
-            foto: "",
-          };
-          STATE.jadwal.push(newItem);
-          closeModal();
-          renderAll_();
-          apiAdd(formData)
-            .then((res) => {
-              if (!res || !res.ok) throw new Error(res && res.error);
-              const it = STATE.jadwal.find((x) => x.id === tempId);
-              if (it && res.id) it.id = res.id;
-            })
-            .catch((err) => {
-              STATE.jadwal = STATE.jadwal.filter((x) => x.id !== tempId);
-              renderAll_();
-              showToast("Gagal menambah rencana, coba lagi ya", true);
-            });
-        }
-      });
+  if (STATE.editingId){
+    const id           = STATE.editingId;
+    const idx          = STATE.jadwal.findIndex(x=>x.id===id);
+    const prevSnapshot = idx>-1 ? { ...STATE.jadwal[idx] } : null;
+    const status       = prevSnapshot?.status || 'Rencana';
+    if (idx>-1) STATE.jadwal[idx] = { ...STATE.jadwal[idx], ...formData, id, status };
+    closeModal(); renderAll_();
+    apiUpdate({ ...formData, id, status }).then(res=>{
+      if (!res || !res.ok) throw new Error(res && res.error);
+    }).catch(err=>{
+      if (idx>-1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
+      renderAll_();
+      showToast('Gagal menyimpan perubahan, coba lagi ya', true);
+    });
+  } else {
+    const tempId  = 'temp-' + Date.now();
+    const newItem = { id: tempId, ...formData, status:'Rencana', dibuatPada: new Date().toISOString(), foto:'' };
+    STATE.jadwal.push(newItem);
+    closeModal(); renderAll_();
+    apiAdd(formData).then(res=>{
+      if (!res || !res.ok) throw new Error(res && res.error);
+      const it = STATE.jadwal.find(x=>x.id===tempId);
+      if (it && res.id) it.id = res.id;
+    }).catch(err=>{
+      STATE.jadwal = STATE.jadwal.filter(x=>x.id!==tempId);
+      renderAll_();
+      showToast('Gagal menambah rencana, coba lagi ya', true);
+    });
+  }
+});
 
-      document
-        .getElementById("btnDeleteInModal")
-        .addEventListener("click", () => {
-          if (!STATE.editingId) return;
-          if (!confirm("Hapus rencana kencan ini?")) return;
-          const id = STATE.editingId;
-          const idx = STATE.jadwal.findIndex((x) => x.id === id);
-          const removed = idx > -1 ? STATE.jadwal[idx] : null;
-          if (idx > -1) STATE.jadwal.splice(idx, 1);
-          closeModal();
-          renderAll_();
-          apiDelete(id)
-            .then((res) => {
-              if (!res || !res.ok) throw new Error(res && res.error);
-            })
-            .catch((err) => {
-              if (removed) STATE.jadwal.splice(idx, 0, removed);
-              renderAll_();
-              showToast("Gagal menghapus, coba lagi ya", true);
-            });
-        });
+document.getElementById('btnDeleteInModal').addEventListener('click', ()=>{
+  if (!STATE.editingId) return;
+  if (!confirm('Hapus rencana kencan ini?')) return;
+  const id      = STATE.editingId;
+  const idx     = STATE.jadwal.findIndex(x=>x.id===id);
+  const removed = idx>-1 ? STATE.jadwal[idx] : null;
+  if (idx>-1) STATE.jadwal.splice(idx,1);
+  closeModal(); renderAll_();
+  apiDelete(id).then(res=>{
+    if (!res || !res.ok) throw new Error(res && res.error);
+  }).catch(err=>{
+    if (removed) STATE.jadwal.splice(idx,0,removed);
+    renderAll_();
+    showToast('Gagal menghapus, coba lagi ya', true);
+  });
+});
 
-      /* ============================================================
-       *  MODAL: PROFIL
-       * ============================================================ */
-      const modalNama = document.getElementById("modalNamaBackdrop");
+/* ============================================================
+ *  MODAL: PROFIL
+ * ============================================================ */
+const modalNama = document.getElementById('modalNamaBackdrop');
 
-      function openNamaModal() {
-        document.getElementById("pNamaA").value = STATE.profil.namaA;
-        document.getElementById("pNamaB").value = STATE.profil.namaB;
-        document.getElementById("pJadian").value = toDateOnlyStr(
-          STATE.profil.jadian,
-        );
-        modalNama.classList.add("open");
-      }
+function openNamaModal(){
+  document.getElementById('pNamaA').value  = STATE.profil.namaA;
+  document.getElementById('pNamaB').value  = STATE.profil.namaB;
+  document.getElementById('pJadian').value = toDateOnlyStr(STATE.profil.jadian);
+  modalNama.classList.add('open');
+}
 
-      document
-        .getElementById("btnGoProfilTop")
-        .addEventListener("click", () => switchPage("profil"));
-      document
-        .getElementById("btnEditProfil")
-        .addEventListener("click", openNamaModal);
-      document
-        .getElementById("btnCloseNama")
-        .addEventListener("click", () => modalNama.classList.remove("open"));
-      modalNama.addEventListener("click", (e) => {
-        if (e.target === modalNama) modalNama.classList.remove("open");
-      });
+document.getElementById('btnGoProfilTop').addEventListener('click', ()=> switchPage('profil'));
+document.getElementById('btnEditProfil').addEventListener('click', openNamaModal);
+document.getElementById('btnCloseNama').addEventListener('click', ()=> modalNama.classList.remove('open'));
+modalNama.addEventListener('click', e=>{ if (e.target===modalNama) modalNama.classList.remove('open'); });
 
-      document.getElementById("formProfil").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const newProfil = {
-          namaA: document.getElementById("pNamaA").value.trim() || "Aku",
-          namaB: document.getElementById("pNamaB").value.trim() || "Kamu",
-          jadian: document.getElementById("pJadian").value,
-        };
-        const prevProfil = { ...STATE.profil };
-        STATE.profil = newProfil;
-        saveProfilLocal(newProfil);
-        modalNama.classList.remove("open");
-        renderProfilPage();
-        renderStats();
-        apiSaveProfil(newProfil)
-          .then((res) => {
-            if (!res || !res.ok) throw new Error(res && res.error);
-          })
-          .catch((err) => {
-            STATE.profil = prevProfil;
-            saveProfilLocal(prevProfil);
-            renderProfilPage();
-            renderStats();
-            showToast("Gagal menyimpan profil, coba lagi ya", true);
-          });
-      });
+document.getElementById('formProfil').addEventListener('submit', e=>{
+  e.preventDefault();
+  const newProfil = {
+    namaA:  document.getElementById('pNamaA').value.trim()  || 'Aku',
+    namaB:  document.getElementById('pNamaB').value.trim()  || 'Kamu',
+    jadian: document.getElementById('pJadian').value,
+  };
+  const prevProfil = { ...STATE.profil };
+  STATE.profil = newProfil;
+  saveProfilLocal(newProfil);
+  modalNama.classList.remove('open');
+  renderProfilPage(); renderStats();
+  apiSaveProfil(newProfil).then(res=>{
+    if (!res || !res.ok) throw new Error(res && res.error);
+  }).catch(err=>{
+    STATE.profil = prevProfil;
+    saveProfilLocal(prevProfil);
+    renderProfilPage(); renderStats();
+    showToast('Gagal menyimpan profil, coba lagi ya', true);
+  });
+});
 
-      function renderProfilPage() {
-        document.getElementById("lblNamaHeader").textContent =
-          `${STATE.profil.namaA} & ${STATE.profil.namaB}`;
-        document.getElementById("profilNamaGabung").textContent =
-          `${STATE.profil.namaA} & ${STATE.profil.namaB}`;
-        document.getElementById("avatarA").textContent = (
-          STATE.profil.namaA || "A"
-        )
-          .charAt(0)
-          .toUpperCase();
-        document.getElementById("avatarB").textContent = (
-          STATE.profil.namaB || "K"
-        )
-          .charAt(0)
-          .toUpperCase();
-        const lbl = document.getElementById("profilHariBersama");
-        if (STATE.profil.jadian) {
-          const days = Math.abs(daysBetween(STATE.profil.jadian));
-          lbl.textContent = `sudah ${days} hari bersama sejak ${fmtTanggalSingkat(STATE.profil.jadian)} 🌷`;
-        } else {
-          lbl.textContent = 'klik "ubah profil" untuk isi tanggal jadian ✨';
-        }
-      }
+function renderProfilPage(){
+  document.getElementById('lblNamaHeader').textContent    = `${STATE.profil.namaA} & ${STATE.profil.namaB}`;
+  document.getElementById('profilNamaGabung').textContent = `${STATE.profil.namaA} & ${STATE.profil.namaB}`;
+  document.getElementById('avatarA').textContent = (STATE.profil.namaA||'A').charAt(0).toUpperCase();
+  document.getElementById('avatarB').textContent = (STATE.profil.namaB||'K').charAt(0).toUpperCase();
+  const lbl = document.getElementById('profilHariBersama');
+  if (STATE.profil.jadian){
+    const days = Math.abs(daysBetween(STATE.profil.jadian));
+    lbl.textContent = `sudah ${days} hari bersama sejak ${fmtTanggalSingkat(STATE.profil.jadian)} 🌷`;
+  } else {
+    lbl.textContent = 'klik "ubah profil" untuk isi tanggal jadian ✨';
+  }
+}
 
-      /* ============================================================
-       *  BOTTOM NAV SWITCHING
-       * ============================================================ */
-      function switchPage(name) {
-        STATE.currentPage = name;
-        document
-          .querySelectorAll(".page")
-          .forEach((p) => p.classList.remove("active"));
-        document.getElementById("page-" + name).classList.add("active");
-        document
-          .querySelectorAll(".navTab")
-          .forEach((b) =>
-            b.classList.toggle("active", b.dataset.page === name),
-          );
-        window.scrollTo({ top: 0, behavior: "instant" });
-        renderAll_();
-        silentSync();
-      }
-      document.querySelectorAll(".navTab").forEach((btn) => {
-        btn.addEventListener("click", () => switchPage(btn.dataset.page));
-      });
-      document
-        .getElementById("btnLihatSemua")
-        .addEventListener("click", () => switchPage("jadwal"));
+/* ============================================================
+ *  BOTTOM NAV SWITCHING
+ * ============================================================ */
+function switchPage(name){
+  STATE.currentPage = name;
+  document.querySelectorAll('.page').forEach(p=> p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.navTab').forEach(b=> b.classList.toggle('active', b.dataset.page===name));
+  window.scrollTo({top:0, behavior:'instant'});
+  renderAll_();
+  silentSync();
+}
+document.querySelectorAll('.navTab').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchPage(btn.dataset.page));
+});
+document.getElementById('btnLihatSemua').addEventListener('click', ()=> switchPage('jadwal'));
 
-      /* ============================================================
-       *  LOAD & INIT
-       * ============================================================ */
-      async function loadJadwal() {
-        const bar = document.getElementById("loadingBar");
-        bar.classList.remove("hidden");
-        try {
-          const res = await apiList();
-          if (res && res.ok) STATE.jadwal = res.data;
-          else console.error("Gagal memuat jadwal:", res && res.error);
-        } catch (err) {
-          console.error("Gagal memuat jadwal (koneksi):", err);
-        }
-        renderAll_();
-        bar.classList.add("hidden");
-      }
+/* ============================================================
+ *  LOAD & INIT
+ * ============================================================ */
+async function loadJadwal(){
+  const bar = document.getElementById('loadingBar');
+  bar.classList.remove('hidden');
+  try {
+    const res = await apiList();
+    if (res && res.ok) STATE.jadwal = res.data;
+    else console.error('Gagal memuat jadwal:', res && res.error);
+  } catch (err) {
+    console.error('Gagal memuat jadwal (koneksi):', err);
+  }
+  renderAll_();
+  bar.classList.add('hidden');
+}
 
-      function renderAll_() {
-        renderHero();
-        renderStats();
-        renderBerandaBoard();
-        renderJadwalBoard();
-        renderKenangan();
-        renderKategoriStats();
-      }
+function renderAll_(){
+  renderHero();
+  renderStats();
+  renderBerandaBoard();
+  renderJadwalBoard();
+  renderKenangan();
+  renderKategoriStats();
+}
 
-      async function silentSync() {
-        const anyModalOpen =
-          modalBackdrop.classList.contains("open") ||
-          detailBackdrop.classList.contains("open") ||
-          modalNama.classList.contains("open");
-        if (anyModalOpen) return;
+async function silentSync(){
+  const anyModalOpen = modalBackdrop.classList.contains('open')
+    || detailBackdrop.classList.contains('open')
+    || modalNama.classList.contains('open');
+  if (anyModalOpen) return;
 
-        try {
-          const [jadwalRes, profilRes] = await Promise.all([
-            apiList(),
-            apiGetProfil(),
-          ]);
-          if (jadwalRes && jadwalRes.ok) STATE.jadwal = jadwalRes.data;
-          if (profilRes && profilRes.ok && profilRes.data) {
-            STATE.profil = {
-              namaA: "Aku",
-              namaB: "Kamu",
-              jadian: "",
-              ...profilRes.data,
-            };
-          }
-        } catch (err) {
-          console.error("Sinkron diam-diam gagal:", err);
-          return;
-        }
-        renderAll_();
-        renderProfilPage();
-      }
+  try {
+    const [jadwalRes, profilRes] = await Promise.all([apiList(), apiGetProfil()]);
+    if (jadwalRes && jadwalRes.ok) STATE.jadwal = jadwalRes.data;
+    if (profilRes && profilRes.ok && profilRes.data){
+      STATE.profil = { namaA:'Aku', namaB:'Kamu', jadian:'', ...profilRes.data };
+    }
+  } catch (err) {
+    console.error('Sinkron diam-diam gagal:', err); return;
+  }
+  renderAll_();
+  renderProfilPage();
+}
 
-      let syncTimer = null;
-      function startAutoSync(intervalMs = 12000) {
-        if (useLocal) return;
-        if (syncTimer) clearInterval(syncTimer);
-        syncTimer = setInterval(() => {
-          if (document.hidden) return;
-          silentSync();
-        }, intervalMs);
-      }
+let syncTimer = null;
+function startAutoSync(intervalMs = 12000){
+  if (useLocal) return;
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(()=>{
+    if (document.hidden) return;
+    silentSync();
+  }, intervalMs);
+}
 
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) silentSync();
-      });
+document.addEventListener('visibilitychange', ()=>{
+  if (!document.hidden) silentSync();
+});
 
-      async function loadProfil() {
-        try {
-          const res = await apiGetProfil();
-          if (res && res.ok && res.data) {
-            STATE.profil = {
-              namaA: "Aku",
-              namaB: "Kamu",
-              jadian: "",
-              ...res.data,
-            };
-          } else {
-            console.error("Gagal memuat profil:", res && res.error);
-          }
-        } catch (err) {
-          console.error("Gagal memuat profil (koneksi):", err);
-        }
-        renderProfilPage();
-        renderStats();
-      }
+async function loadProfil(){
+  try {
+    const res = await apiGetProfil();
+    if (res && res.ok && res.data){
+      STATE.profil = { namaA:'Aku', namaB:'Kamu', jadian:'', ...res.data };
+    } else {
+      console.error('Gagal memuat profil:', res && res.error);
+    }
+  } catch (err) {
+    console.error('Gagal memuat profil (koneksi):', err);
+  }
+  renderProfilPage(); renderStats();
+}
 
-      (async function init() {
-        document.getElementById("apiStatus").textContent = useLocal ? "" : "";
-        renderFilterTabs();
-        await loadProfil();
-        await loadJadwal();
-        startAutoSync();
-      })();
-    </script>
-  </body>
+(async function init(){
+  document.getElementById('apiStatus').textContent = useLocal
+    ? 'Mode demo: data tersimpan di browser ini. Sambungkan CONFIG.API_URL ke Apps Script untuk sinkron berdua.'
+    : 'Tersambung ke Google Sheets 💾';
+  renderFilterTabs();
+  await loadProfil();
+  await loadJadwal();
+  startAutoSync();
+})();
+</script>
+</body>
 </html>
