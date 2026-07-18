@@ -1757,9 +1757,7 @@
       }
 
       (async function init() {
-        document.getElementById("apiStatus").textContent = useLocal
-          ? "Mode demo: data tersimpan di browser ini. Sambungkan CONFIG.API_URL ke Apps Script untuk sinkron berdua."
-          : "Tersambung ke Google Sheets 💾";
+        document.getElementById("apiStatus").textContent = useLocal ? "" : "";
         renderFilterTabs();
         await loadProfil();
         await loadJadwal();
