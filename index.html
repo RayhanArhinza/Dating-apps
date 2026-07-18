@@ -298,7 +298,6 @@
       <button id="btnLihatSemua" class="text-xs font-semibold text-[var(--rose-deep)]">lihat semua →</button>
     </div>
     <div id="berandaBoard" class="cork rounded-2xl mx-5 p-4 min-h-[180px]"></div>
-    <p class="text-center font-hand text-lg text-[var(--ink-soft)] mt-4">tempel rencana baru, biar makin banyak yang dinanti ✨</p>
   </section>
 
   <!-- ============ PAGE: JADWAL ============ -->
@@ -342,7 +341,7 @@
       <div id="kategoriStats" class="space-y-2 mb-6"></div>
 
       <p id="apiStatus" class="text-center text-[11px] text-[var(--ink-soft)]"></p>
-      <p class="text-center text-[11px] text-[var(--ink-soft)] mt-1 mb-6">dibuat dengan 💗 untuk kalian berdua</p>
+      <p class="text-center text-[11px] text-[var(--ink-soft)] mt-1 mb-6">dibuat dengan 💗</p>
     </div>
   </section>
 
@@ -1408,8 +1407,8 @@ async function loadProfil(){
 
 (async function init(){
   document.getElementById('apiStatus').textContent = useLocal
-    ? 'Mode demo: data tersimpan di browser ini. Sambungkan CONFIG.API_URL ke Apps Script untuk sinkron berdua.'
-    : 'Tersambung ke Google Sheets 💾';
+    ? ''
+    : '';
   renderFilterTabs();
   await loadProfil();
   await loadJadwal();
