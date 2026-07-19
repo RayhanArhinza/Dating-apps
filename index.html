@@ -64,9 +64,17 @@
   .rot3{ transform:rotate(-1.5deg); } .rot4{ transform:rotate(3.5deg); }
 
   /* ===== Bottom nav ===== */
+  /* PERBAIKAN: bottom-nav dipindah keluar dari .app-shell agar position:fixed
+     benar-benar relative ke viewport, bukan ke transform ancestor */
   .bottom-nav{
-    position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:460px;
-    background:var(--card); border-top:1px solid var(--line);
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:0;
+    width:100%;
+    max-width:460px;
+    background:var(--card);
+    border-top:1px solid var(--line);
     padding-bottom:env(safe-area-inset-bottom, 0px);
     box-shadow:0 -6px 20px -8px rgba(64,42,61,.18);
     z-index:30;
@@ -260,6 +268,8 @@
     <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> memuat...
   </div>
 </div>
+
+<!-- ============ APP SHELL (konten saja, tanpa nav) ============ -->
 <div class="app-shell">
 
   <!-- ============ PAGE: BERANDA ============ -->
@@ -345,30 +355,31 @@
     </div>
   </section>
 
-  <!-- ============ BOTTOM NAV ============ -->
-  <nav class="bottom-nav">
-    <button class="fab" id="btnOpenAdd" aria-label="Tambah rencana">+</button>
-    <div class="grid grid-cols-5 items-center px-2 pt-2">
-      <button data-page="beranda" class="navTab nav-btn active">
-        <span class="pill"><span class="text-lg">🏠</span></span>
-        <span class="text-[10px] font-semibold">Beranda</span>
-      </button>
-      <button data-page="jadwal" class="navTab nav-btn">
-        <span class="pill"><span class="text-lg">📌</span></span>
-        <span class="text-[10px] font-semibold">Jadwal</span>
-      </button>
-      <div></div>
-      <button data-page="kenangan" class="navTab nav-btn">
-        <span class="pill"><span class="text-lg">📷</span></span>
-        <span class="text-[10px] font-semibold">Kenangan</span>
-      </button>
-      <button data-page="profil" class="navTab nav-btn">
-        <span class="pill"><span class="text-lg">💞</span></span>
-        <span class="text-[10px] font-semibold">Profil</span>
-      </button>
-    </div>
-  </nav>
-</div>
+</div><!-- /app-shell -->
+
+<!-- ============ BOTTOM NAV — di luar app-shell agar fixed benar-benar ke viewport ============ -->
+<nav class="bottom-nav">
+  <button class="fab" id="btnOpenAdd" aria-label="Tambah rencana">+</button>
+  <div class="grid grid-cols-5 items-center px-2 pt-2">
+    <button data-page="beranda" class="navTab nav-btn active">
+      <span class="pill"><span class="text-lg">🏠</span></span>
+      <span class="text-[10px] font-semibold">Beranda</span>
+    </button>
+    <button data-page="jadwal" class="navTab nav-btn">
+      <span class="pill"><span class="text-lg">📌</span></span>
+      <span class="text-[10px] font-semibold">Jadwal</span>
+    </button>
+    <div></div>
+    <button data-page="kenangan" class="navTab nav-btn">
+      <span class="pill"><span class="text-lg">📷</span></span>
+      <span class="text-[10px] font-semibold">Kenangan</span>
+    </button>
+    <button data-page="profil" class="navTab nav-btn">
+      <span class="pill"><span class="text-lg">💞</span></span>
+      <span class="text-[10px] font-semibold">Profil</span>
+    </button>
+  </div>
+</nav>
 
 <!-- ============ MODAL: TAMBAH/UBAH JADWAL ============ -->
 <div id="modalBackdrop" class="modal-backdrop">
@@ -449,7 +460,7 @@
  *  LOCK SCREEN
  * ============================================================ */
 (function(){
-  const SECRET     = '12072026';   // kode rahasia
+  const SECRET     = '12072026';
   const LS_UNLOCK  = 'jkk_unlocked';
   const MAX_LEN    = SECRET.length;
 
@@ -462,14 +473,12 @@
   let entered = '';
   let locked  = true;
 
-  /* Cek apakah sudah pernah unlock di sesi ini */
   if (sessionStorage.getItem(LS_UNLOCK) === '1') {
     screen.classList.add('hidden');
     locked = false;
     return;
   }
 
-  /* Buat dot indikator sesuai panjang kode */
   function buildDots(){
     pinDisplay.innerHTML = '';
     for (let i = 0; i < MAX_LEN; i++){
@@ -532,14 +541,12 @@
     setHint('');
   }
 
-  /* Keypad click */
   keypad.addEventListener('click', e=>{
     const btn = e.target.closest('[data-n]');
     if (btn) addDigit(btn.dataset.n);
   });
   delBtn.addEventListener('click', delDigit);
 
-  /* Keyboard support */
   document.addEventListener('keydown', e=>{
     if (!locked) return;
     if (e.key >= '0' && e.key <= '9') addDigit(e.key);
@@ -548,7 +555,7 @@
 })();
 
 /* ============================================================
- *  KONFIGURASI — ganti API_URL dengan URL Web App milikmu
+ *  KONFIGURASI
  * ============================================================ */
 const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwfPxboMk8wo2y_O_s65psYX5_SSOI8wVv7SD2sca6_mV44KhmpEyR3YhbsKGvrWJ22fw/exec'
@@ -653,46 +660,24 @@ function saveProfilLocal(data){ localStorage.setItem(LS_PROFIL_KEY, JSON.stringi
 /* ============================================================
  *  UTIL
  * ============================================================ */
-
-/**
- * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
- * Ini yang memperbaiki bug "Invalid Date".
- */
-/**
- * Ekstrak tanggal murni (YYYY-MM-DD) dari input apapun bentuknya.
- *
- * PENTING — masalah timezone:
- * Google Sheets kadang mengirim tanggal sebagai ISO UTC string,
- * mis. "2026-07-12T00:00:00.000Z" yang di zona WIB (UTC+7) terbaca
- * sebagai "2026-07-11T07:00:00" → tanggal maju mundur 1 hari.
- *
- * Solusinya: kalau string mengandung "T" (ada waktu), kita buang
- * bagian waktunya dan ambil hanya bagian tanggal lokal dengan
- * mengkonversi ke waktu lokal dulu, BUKAN pakai toISOString()
- * yang selalu UTC.
- */
 function toDateOnlyStr(input){
   if (!input) return '';
   if (typeof input !== 'string') return '';
 
-  // Sudah format YYYY-MM-DD murni → langsung pakai
   const plain = input.match(/^(\d{4}-\d{2}-\d{2})(?:T.*)?$/);
   if (plain) {
-    // Kalau ada bagian waktu (ISO), parse dulu lalu ambil tanggal LOKAL
     if (input.includes('T')) {
       const d = new Date(input);
       if (!isNaN(d.getTime())) {
-        // padStart supaya selalu 2 digit
         const yy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
         return `${yy}-${mm}-${dd}`;
       }
     }
-    return plain[1]; // Tidak ada "T", ambil bagian YYYY-MM-DD saja
+    return plain[1];
   }
 
-  // Fallback: coba parse biasa lalu ambil tanggal lokal
   const d = new Date(input);
   if (!isNaN(d.getTime())) {
     const yy = d.getFullYear();
@@ -703,15 +688,11 @@ function toDateOnlyStr(input){
   return '';
 }
 
-/**
- * Buat objek Date dari string YYYY-MM-DD tanpa efek timezone.
- * Selalu interpretasikan sebagai waktu lokal tengah malam.
- */
 function localDate(iso){
   const clean = toDateOnlyStr(iso);
   if (!clean) return null;
   const [y, m, d] = clean.split('-').map(Number);
-  return new Date(y, m - 1, d); // konstruktor (year, month0, day) = lokal
+  return new Date(y, m - 1, d);
 }
 
 function fmtTanggalIndo(iso){
@@ -766,30 +747,17 @@ function showToast(msg, isError=false){
   t._hideTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 2400);
 }
 
-/**
- * Validasi & bersihkan nilai waktu dari input type="time".
- * - Kembalikan "HH:MM" kalau valid
- * - Kembalikan "" kalau kosong atau tidak valid
- * Ini mencegah nilai aneh (undefined, null, "Invalid Date") masuk ke server.
- */
 function cleanWaktuInput(val){
   if (!val || typeof val !== 'string') return '';
   const trimmed = val.trim();
-  // Format HH:MM atau HH:MM:SS (browser kadang kirim detik juga)
   if (/^\d{2}:\d{2}(:\d{2})?$/.test(trimmed)) return trimmed.slice(0, 5);
   return '';
 }
 
-/**
- * Tampilkan waktu di UI — sembunyikan kalau formatnya tidak bersih.
- */
 function cleanWaktu(w){
   return (typeof w === 'string' && /^\d{2}:\d{2}$/.test(w)) ? w : '';
 }
 
-/**
- * Resize + kompres foto jadi data URL kecil agar muat di sel Google Sheets.
- */
 function resizeImageFile(file, maxDim=640, quality=0.6){
   const MAX_CHARS = 45000;
   return new Promise((resolve, reject)=>{
@@ -1179,7 +1147,6 @@ function openEditModal(id){
   document.getElementById('fId').value      = j.id;
   document.getElementById('fJudul').value   = j.judul;
   document.getElementById('fTanggal').value = toDateOnlyStr(j.tanggal);
-  // Isi waktu hanya kalau formatnya bersih HH:MM
   document.getElementById('fWaktu').value   = cleanWaktu(j.waktu) || '';
   document.getElementById('fLokasi').value  = j.lokasi  || '';
   document.getElementById('fKategori').value = j.kategori || 'Lainnya';
@@ -1200,14 +1167,13 @@ modalBackdrop.addEventListener('click', e=>{ if (e.target===modalBackdrop) close
 document.getElementById('formJadwal').addEventListener('submit', e=>{
   e.preventDefault();
 
-  // ★ PERBAIKAN UTAMA: bersihkan nilai waktu sebelum dikirim ke server
   const waktuRaw = document.getElementById('fWaktu').value;
   const waktuBersih = cleanWaktuInput(waktuRaw);
 
   const formData = {
     judul:    document.getElementById('fJudul').value.trim(),
     tanggal:  document.getElementById('fTanggal').value,
-    waktu:    waktuBersih,    // selalu string bersih "HH:MM" atau ""
+    waktu:    waktuBersih,
     lokasi:   document.getElementById('fLokasi').value.trim(),
     kategori: document.getElementById('fKategori').value,
     catatan:  document.getElementById('fCatatan').value.trim(),
@@ -1406,9 +1372,7 @@ async function loadProfil(){
 }
 
 (async function init(){
-  document.getElementById('apiStatus').textContent = useLocal
-    ? ''
-    : '';
+  document.getElementById('apiStatus').textContent = useLocal ? '' : '';
   renderFilterTabs();
   await loadProfil();
   await loadJadwal();
