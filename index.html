@@ -232,6 +232,84 @@
     transition: opacity .2s ease;
   }
   .lock-hint.shake{ color:#e74c3c; }
+
+  /* ===== VIEW TOGGLE (Papan / Kalender) ===== */
+  .view-toggle{
+    display:inline-flex; background:var(--card); border:1.5px solid var(--line);
+    border-radius:9999px; padding:3px; gap:2px;
+  }
+  .view-toggle button{
+    padding:5px 16px; border-radius:9999px; font-size:.75rem; font-weight:600;
+    color:var(--ink-soft); transition:all .15s ease; white-space:nowrap;
+  }
+  .view-toggle button.active{
+    background:var(--rose); color:#fff;
+    box-shadow:0 3px 8px -3px rgba(178,58,92,.45);
+  }
+
+  /* ===== KALENDER ===== */
+  .cal-wrap{ padding:0 20px 20px; }
+  .cal-nav{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+  }
+  .cal-nav button{
+    width:34px; height:34px; border-radius:50%; background:var(--card);
+    border:1.5px solid var(--line); font-size:1rem; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; transition:background .12s ease;
+  }
+  .cal-nav button:active{ background:var(--rose); color:#fff; }
+  .cal-grid{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:3px;
+  }
+  .cal-dow{
+    text-align:center; font-size:.6rem; font-weight:700;
+    color:var(--ink-soft); padding:4px 0 6px;
+    font-family:'Fredoka',sans-serif; letter-spacing:.03em;
+  }
+  .cal-day{
+    aspect-ratio:1/1; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:.78rem; font-weight:600;
+    cursor:default; position:relative; transition:background .12s ease;
+  }
+  .cal-day.other-month{ color:var(--ink-soft); opacity:.35; }
+  .cal-day.today{
+    background:rgba(232,96,126,.15); color:var(--rose-deep);
+    font-weight:700;
+  }
+  .cal-day.has-event{
+    cursor:pointer;
+    background:var(--rose); color:#fff;
+    box-shadow:0 3px 8px -3px rgba(178,58,92,.5);
+  }
+  .cal-day.has-event:hover{ background:var(--rose-deep); }
+  .cal-day.has-event.done{
+    background:rgba(64,42,61,.18); color:var(--ink); box-shadow:none;
+  }
+  .cal-day.has-event.done:hover{ background:rgba(64,42,61,.28); }
+  /* titik multi-event */
+  .cal-dot{
+    position:absolute; bottom:2px; left:50%; transform:translateX(-50%);
+    display:flex; gap:2px;
+  }
+  .cal-dot span{
+    width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.8);
+  }
+  .cal-dot span.dark{ background:var(--rose); }
+
+  /* popup event list bawah kalender */
+  .cal-events-panel{
+    margin-top:14px; background:var(--card); border-radius:16px;
+    padding:14px 16px; box-shadow:0 4px 12px -4px rgba(64,42,61,.15);
+    min-height:60px;
+  }
+  .cal-event-item{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .cal-event-item:last-child{ border-bottom:none; padding-bottom:0; }
+  .cal-event-dot{
+    width:10px; height:10px; border-radius:50%; flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -312,13 +390,42 @@
 
   <!-- ============ PAGE: JADWAL ============ -->
   <section id="page-jadwal" class="page">
-    <header class="px-5 pt-6 pb-3">
-      <h1 class="font-display text-2xl font-semibold">Jadwal Kencan</h1>
-      <p class="text-xs text-[var(--ink-soft)]">semua rencana yang lagi ditunggu-tunggu</p>
+    <header class="px-5 pt-6 pb-3 flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold">Jadwal Kencan</h1>
+        <p class="text-xs text-[var(--ink-soft)]">semua rencana yang lagi ditunggu-tunggu</p>
+      </div>
+      <!-- Toggle Papan / Kalender -->
+      <div class="view-toggle" id="viewToggle">
+        <button id="btnViewPapan" class="active">📌 Papan</button>
+        <button id="btnViewKalender">🗓️ Kalender</button>
+      </div>
     </header>
-    <div id="filterTabs" class="flex gap-2 px-5 pb-3 overflow-x-auto no-scrollbar"></div>
-    <div id="jadwalBoard" class="cork mx-5 rounded-2xl p-4 grid grid-cols-2 gap-4 min-h-[220px]"></div>
-    <p id="jadwalEmpty" class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"></p>
+
+    <!-- VIEW: PAPAN -->
+    <div id="viewPapan">
+      <div id="filterTabs" class="flex gap-2 px-5 pb-3 overflow-x-auto no-scrollbar"></div>
+      <div id="jadwalBoard" class="cork mx-5 rounded-2xl p-4 grid grid-cols-2 gap-4 min-h-[220px]"></div>
+      <p id="jadwalEmpty" class="hidden text-center font-hand text-2xl text-[var(--ink-soft)] py-10 px-6"></p>
+    </div>
+
+    <!-- VIEW: KALENDER -->
+    <div id="viewKalender" class="hidden">
+      <div class="cal-wrap">
+        <!-- Navigasi bulan -->
+        <div class="cal-nav">
+          <button id="calPrev">‹</button>
+          <p class="font-display font-semibold text-base" id="calMonthLabel"></p>
+          <button id="calNext">›</button>
+        </div>
+        <!-- Grid kalender -->
+        <div class="cal-grid" id="calGrid"></div>
+        <!-- Panel event hari yang dipilih -->
+        <div class="cal-events-panel" id="calEventsPanel">
+          <p class="text-xs text-[var(--ink-soft)] text-center font-hand text-lg">ketuk tanggal untuk lihat kencan 💌</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ============ PAGE: KENANGAN ============ -->
@@ -884,6 +991,175 @@ function renderBerandaBoard(){
 }
 
 /* ============================================================
+ *  VIEW TOGGLE (Papan ↔ Kalender)
+ * ============================================================ */
+let jadwalView = 'papan'; // 'papan' | 'kalender'
+
+function initViewToggle(){
+  const btnPapan    = document.getElementById('btnViewPapan');
+  const btnKalender = document.getElementById('btnViewKalender');
+  const vPapan      = document.getElementById('viewPapan');
+  const vKalender   = document.getElementById('viewKalender');
+
+  function setView(v){
+    jadwalView = v;
+    btnPapan.classList.toggle('active',    v === 'papan');
+    btnKalender.classList.toggle('active', v === 'kalender');
+    vPapan.classList.toggle('hidden',      v !== 'papan');
+    vKalender.classList.toggle('hidden',   v !== 'kalender');
+    if (v === 'kalender') renderKalender();
+  }
+
+  btnPapan.addEventListener('click',    ()=> setView('papan'));
+  btnKalender.addEventListener('click', ()=> setView('kalender'));
+}
+
+/* ============================================================
+ *  RENDER: KALENDER BULANAN
+ * ============================================================ */
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-based
+let calSelectedDate = null; // "YYYY-MM-DD"
+
+const DOW_LABELS = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const BULAN_LABEL = ['Januari','Februari','Maret','April','Mei','Juni',
+                     'Juli','Agustus','September','Oktober','November','Desember'];
+
+function renderKalender(){
+  const grid      = document.getElementById('calGrid');
+  const monthLbl  = document.getElementById('calMonthLabel');
+  const panel     = document.getElementById('calEventsPanel');
+
+  monthLbl.textContent = `${BULAN_LABEL[calMonth]} ${calYear}`;
+
+  // Kumpulkan semua event per tanggal (YYYY-MM-DD)
+  const eventMap = {}; // date -> [jadwal]
+  STATE.jadwal.forEach(j => {
+    const key = toDateOnlyStr(j.tanggal);
+    if (!key) return;
+    (eventMap[key] = eventMap[key] || []).push(j);
+  });
+
+  // Hari pertama bulan ini (hari dalam seminggu: 0=Min)
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  // Jumlah hari dalam bulan ini
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  // Hari ini
+  const todayStr = toDateOnlyStr(new Date().toISOString());
+
+  let html = DOW_LABELS.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // Isi sel kosong sebelum hari 1
+  for (let i = 0; i < firstDay; i++){
+    // Hari dari bulan sebelumnya
+    const prevDays = new Date(calYear, calMonth, 0).getDate();
+    const day = prevDays - firstDay + 1 + i;
+    html += `<div class="cal-day other-month">${day}</div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++){
+    const mm   = String(calMonth + 1).padStart(2, '0');
+    const dd   = String(d).padStart(2, '0');
+    const key  = `${calYear}-${mm}-${dd}`;
+    const evs  = eventMap[key] || [];
+    const isToday    = key === todayStr;
+    const isSelected = key === calSelectedDate;
+    const hasEv      = evs.length > 0;
+    const allDone    = hasEv && evs.every(j => j.status === 'Selesai');
+
+    let cls = 'cal-day';
+    if (isToday && !hasEv) cls += ' today';
+    if (hasEv) cls += ' has-event' + (allDone ? ' done' : '');
+    if (isSelected) cls += ' ring-2 ring-offset-1 ring-[var(--rose-deep)]';
+
+    // Titik indikator kalau ada lebih dari 1 event
+    let dotsHtml = '';
+    if (hasEv && evs.length > 1){
+      const maxDots = Math.min(evs.length, 3);
+      const dotClass = allDone ? 'dark' : '';
+      dotsHtml = `<span class="cal-dot">${Array(maxDots).fill(`<span class="${dotClass}"></span>`).join('')}</span>`;
+    }
+
+    html += `<div class="${cls}" data-date="${key}" ${hasEv ? `role="button" tabindex="0"` : ''}>${d}${dotsHtml}</div>`;
+  }
+
+  // Sisa sel setelah hari terakhir
+  const totalCells = firstDay + daysInMonth;
+  const remainder  = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let i = 1; i <= remainder; i++){
+    html += `<div class="cal-day other-month">${i}</div>`;
+  }
+
+  grid.innerHTML = html;
+
+  // Klik tanggal
+  grid.querySelectorAll('.cal-day.has-event').forEach(el => {
+    el.addEventListener('click', () => {
+      calSelectedDate = el.dataset.date;
+      renderKalender(); // re-render untuk highlight selected
+      renderCalPanel(eventMap[calSelectedDate] || []);
+    });
+    el.addEventListener('keypress', e => {
+      if (e.key === 'Enter') el.click();
+    });
+  });
+
+  // Render panel untuk tanggal yang sudah dipilih
+  if (calSelectedDate && eventMap[calSelectedDate]){
+    renderCalPanel(eventMap[calSelectedDate]);
+  } else {
+    panel.innerHTML = `<p class="text-xs text-[var(--ink-soft)] text-center font-hand text-lg">ketuk tanggal untuk lihat kencan 💌</p>`;
+  }
+}
+
+function renderCalPanel(evs){
+  const panel = document.getElementById('calEventsPanel');
+  if (!evs || evs.length === 0){
+    panel.innerHTML = `<p class="text-xs text-[var(--ink-soft)] text-center py-2">tidak ada kencan di hari ini</p>`;
+    return;
+  }
+
+  const d = localDate(calSelectedDate);
+  const tglLabel = d ? d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long' }) : '';
+
+  panel.innerHTML = `
+    <p class="font-hand text-xl text-[var(--rose-deep)] mb-2">${tglLabel}</p>
+    ${evs.map(j => {
+      const cat = catMeta(j.kategori);
+      const waktu = cleanWaktu(j.waktu) ? ` · ${cleanWaktu(j.waktu)}` : '';
+      const done  = j.status === 'Selesai';
+      return `
+      <div class="cal-event-item" data-open="${j.id}">
+        <div class="cal-event-dot" style="background:${cat.color}"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold truncate ${done ? 'line-through opacity-60' : ''}">${escapeHtml(j.judul)}</p>
+          <p class="text-[10px] text-[var(--ink-soft)]">${cat.emoji} ${j.kategori}${waktu}${done ? ' · selesai ✓' : ''}</p>
+        </div>
+        <span class="text-[var(--ink-soft)] text-base">›</span>
+      </div>`;
+    }).join('')}`;
+
+  // Tap item → buka detail modal
+  panel.querySelectorAll('[data-open]').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.open));
+  });
+}
+
+// Navigasi bulan
+document.getElementById('calPrev').addEventListener('click', ()=>{
+  calMonth--;
+  if (calMonth < 0){ calMonth = 11; calYear--; }
+  calSelectedDate = null;
+  renderKalender();
+});
+document.getElementById('calNext').addEventListener('click', ()=>{
+  calMonth++;
+  if (calMonth > 11){ calMonth = 0; calYear++; }
+  calSelectedDate = null;
+  renderKalender();
+});
+
+/* ============================================================
  *  RENDER: FILTER TABS
  * ============================================================ */
 function renderFilterTabs(){
@@ -1322,6 +1598,8 @@ function renderAll_(){
   renderJadwalBoard();
   renderKenangan();
   renderKategoriStats();
+  // Re-render kalender kalau sedang aktif
+  if (jadwalView === 'kalender') renderKalender();
 }
 
 async function silentSync(){
@@ -1373,6 +1651,7 @@ async function loadProfil(){
 
 (async function init(){
   document.getElementById('apiStatus').textContent = useLocal ? '' : '';
+  initViewToggle();
   renderFilterTabs();
   await loadProfil();
   await loadJadwal();
