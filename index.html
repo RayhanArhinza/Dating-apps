@@ -1850,11 +1850,18 @@ function buildRouletteWheel(){
 
     const midAngle = startAngle + sliceAngle / 2;
     let label = rouletteOptions[i];
-    if (label.length > 14) label = label.slice(0,13) + '…';
-    const radius = n > 6 ? 95 : 100;
-    texts += `<text x="150" y="150" text-anchor="middle" dominant-baseline="middle"
-      font-family="Fredoka,sans-serif" font-weight="600" font-size="${n > 8 ? 10 : 12}" fill="#fff"
-      transform="rotate(${midAngle} 150 150) translate(${radius} 0) rotate(90)">${escapeHtml(label)}</text>`;
+    if (label.length > 12) label = label.slice(0,11) + '…';
+    const radius = n > 6 ? 88 : (n > 4 ? 92 : 78);
+    const midRad = midAngle * Math.PI / 180;
+    const tx = 150 + radius * Math.cos(midRad);
+    const ty = 150 + radius * Math.sin(midRad);
+    // Orient label so it reads pointing outward from the center (tangent to the radius line)
+    let textRot = midAngle + 90;
+    if (textRot > 90 && textRot < 270) textRot -= 180; // keep text upright, not upside-down
+    texts += `<text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" text-anchor="middle" dominant-baseline="middle"
+      font-family="Fredoka,sans-serif" font-weight="700" font-size="${n > 8 ? 10 : (n > 5 ? 12 : 14)}" fill="#fff"
+      style="paint-order:stroke; stroke:rgba(64,42,61,.55); stroke-width:2.5px; stroke-linejoin:round;"
+      transform="rotate(${textRot} ${tx.toFixed(2)} ${ty.toFixed(2)})">${escapeHtml(label)}</text>`;
   }
   svg.innerHTML = paths + texts;
 }
