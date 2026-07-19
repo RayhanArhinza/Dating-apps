@@ -310,6 +310,40 @@
   .cal-event-dot{
     width:10px; height:10px; border-radius:50%; flex-shrink:0;
   }
+
+  /* ===== ROULETTE KEPUTUSAN ===== */
+  .roulette-wrap{ position:relative; width:250px; height:250px; margin:0 auto 18px; }
+  .roulette-pointer{
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    font-size:1.9rem; z-index:6; filter:drop-shadow(0 3px 3px rgba(64,42,61,.35));
+    line-height:1;
+  }
+  .roulette-wheel{
+    width:100%; height:100%; border-radius:50%;
+    box-shadow:0 8px 22px -6px rgba(64,42,61,.4), inset 0 0 0 3px rgba(255,255,255,.6);
+    transition: transform 4s cubic-bezier(.15,.7,.1,1);
+    background:var(--card);
+  }
+  .roulette-hub{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:44px; height:44px; border-radius:50%;
+    background:var(--card); box-shadow:0 2px 8px rgba(64,42,61,.3);
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem; z-index:5;
+  }
+  .roulette-chip{
+    display:inline-flex; align-items:center; gap:5px;
+    background:#fff; border:1.5px solid var(--line); border-radius:9999px;
+    padding:5px 10px 5px 12px; font-size:.75rem; font-weight:600;
+  }
+  .roulette-chip button{ color:var(--rose-deep); font-weight:700; line-height:1; padding:2px; }
+  .roulette-suggest{
+    background:rgba(232,96,126,.08); border:1.5px dashed var(--rose); color:var(--rose-deep);
+    border-radius:9999px; padding:4px 10px; font-size:.7rem; font-weight:600; white-space:nowrap;
+  }
+  .roulette-result-pop{
+    background:linear-gradient(155deg, var(--rose), var(--rose-deep));
+    border-radius:20px; padding:18px; text-align:center; color:#fff;
+  }
 </style>
 </head>
 <body>
@@ -357,7 +391,10 @@
         <p class="text-xs text-[var(--ink-soft)]">Halo,</p>
         <h1 class="font-display text-xl font-semibold"><span id="lblNamaHeader">Aku & Kamu</span> 👋</h1>
       </div>
-      <button id="btnGoProfilTop" class="w-10 h-10 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-lg">💗</button>
+      <div class="flex items-center gap-2">
+        <button id="btnOpenRoulette" aria-label="Roulette keputusan" class="w-10 h-10 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-lg">🎡</button>
+        <button id="btnGoProfilTop" class="w-10 h-10 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-lg">💗</button>
+      </div>
     </header>
 
     <div class="px-5">
@@ -395,10 +432,13 @@
         <h1 class="font-display text-2xl font-semibold">Jadwal Kencan</h1>
         <p class="text-xs text-[var(--ink-soft)]">semua rencana yang lagi ditunggu-tunggu</p>
       </div>
-      <!-- Toggle Papan / Kalender -->
-      <div class="view-toggle" id="viewToggle">
-        <button id="btnViewPapan" class="active">📌 Papan</button>
-        <button id="btnViewKalender">🗓️ Kalender</button>
+      <div class="flex items-center gap-2">
+        <button id="btnOpenRouletteJadwal" aria-label="Roulette keputusan" class="w-9 h-9 rounded-full bg-[var(--rose)]/15 flex items-center justify-center text-base flex-shrink-0">🎡</button>
+        <!-- Toggle Papan / Kalender -->
+        <div class="view-toggle" id="viewToggle">
+          <button id="btnViewPapan" class="active">📌 Papan</button>
+          <button id="btnViewKalender">🗓️ Kalender</button>
+        </div>
       </div>
     </header>
 
@@ -559,6 +599,45 @@
       </div>
       <button type="submit" class="w-full bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm mb-2">Simpan</button>
     </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: ROULETTE KEPUTUSAN ============ -->
+<div id="rouletteBackdrop" class="modal-backdrop">
+  <div class="sheet fade-in p-6 relative">
+    <div class="w-10 h-1.5 bg-[var(--line)] rounded-full mx-auto mb-4"></div>
+    <button id="btnCloseRoulette" class="absolute top-5 right-5 text-[var(--rose-deep)] text-2xl leading-none">&times;</button>
+    <h2 class="font-display text-2xl font-semibold mb-1">Roulette keputusan 🎡</h2>
+    <p class="text-xs text-[var(--ink-soft)] mb-4">bingung mau makan apa / kemana? masukin pilihan, lalu putar. tidak disimpan ke server, cuma di layar ini aja.</p>
+
+    <!-- Input tambah pilihan -->
+    <form id="formRouletteAdd" class="flex gap-2 mb-2" action="javascript:void(0);">
+      <input id="rInputOpsi" type="text" placeholder="Mis. Bakso, Nonton, Pantai..."
+        maxlength="40"
+        class="flex-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm">
+      <button type="submit" class="bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-xl px-4 text-sm">Tambah</button>
+    </form>
+
+    <!-- Saran cepat dari kategori -->
+    <div id="rouletteSuggest" class="flex gap-1.5 flex-wrap mb-3"></div>
+
+    <!-- Daftar pilihan (chip) -->
+    <div id="rouletteChips" class="flex flex-wrap gap-2 mb-5 min-h-[36px]"></div>
+
+    <!-- Wheel -->
+    <div class="roulette-wrap" id="rouletteWrap">
+      <div class="roulette-pointer">📍</div>
+      <svg id="rouletteWheel" class="roulette-wheel" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="roulette-hub">💗</div>
+    </div>
+
+    <p id="rouletteHint" class="text-center text-xs text-[var(--ink-soft)] mb-4">tambahkan minimal 2 pilihan untuk mulai memutar</p>
+
+    <button id="btnSpinRoulette" disabled class="w-full bg-[var(--rose)] hover:bg-[var(--rose-deep)] disabled:opacity-40 text-white font-display font-semibold rounded-full py-3 text-sm mb-2 transition-colors">Putar sekarang! 🎯</button>
+    <button id="btnClearRoulette" class="w-full text-center text-xs text-[var(--ink-soft)] font-semibold py-1 mb-2">🗑️ Kosongkan semua pilihan</button>
+
+    <!-- Hasil -->
+    <div id="rouletteResultWrap" class="hidden"></div>
   </div>
 </div>
 
@@ -1618,6 +1697,216 @@ function renderProfilPage(){
 }
 
 /* ============================================================
+ *  ROULETTE KEPUTUSAN (tidak disimpan ke server, cuma di sesi ini)
+ * ============================================================ */
+const ROULETTE_LS_KEY = 'jadwalKencan_roulette_opsi';
+const ROULETTE_PALETTE = ['#E8607E','#F0B860','#4F8F6B','#4A3F6B','#2FA0A0','#D45D9C','#3B7DBF','#E2725B','#8452A6','#C77D3E'];
+const ROULETTE_SUGGESTIONS = ['Makan','Nonton','Jalan-jalan','Kopi','Piknik','Belanja'];
+
+let rouletteOptions = [];
+try { rouletteOptions = JSON.parse(sessionStorage.getItem(ROULETTE_LS_KEY) || '[]'); } catch(e){ rouletteOptions = []; }
+let rouletteCurrentRotation = 0;
+let rouletteSpinning = false;
+
+const rouletteBackdrop = document.getElementById('rouletteBackdrop');
+
+function saveRouletteOptions(){
+  try { sessionStorage.setItem(ROULETTE_LS_KEY, JSON.stringify(rouletteOptions)); } catch(e){}
+}
+
+function openRouletteModal(){
+  rouletteBackdrop.classList.add('open');
+  document.getElementById('rouletteResultWrap').classList.add('hidden');
+  document.getElementById('rouletteResultWrap').innerHTML = '';
+  renderRouletteSuggest();
+  renderRouletteChips();
+  buildRouletteWheel();
+  updateRouletteButtonState();
+}
+function closeRouletteModal(){ rouletteBackdrop.classList.remove('open'); }
+
+document.getElementById('btnOpenRoulette').addEventListener('click', openRouletteModal);
+document.getElementById('btnOpenRouletteJadwal').addEventListener('click', openRouletteModal);
+document.getElementById('btnCloseRoulette').addEventListener('click', closeRouletteModal);
+rouletteBackdrop.addEventListener('click', e=>{ if (e.target===rouletteBackdrop) closeRouletteModal(); });
+
+function renderRouletteSuggest(){
+  const wrap = document.getElementById('rouletteSuggest');
+  wrap.innerHTML = ROULETTE_SUGGESTIONS.map(s=>{
+    const meta = catMeta(s);
+    return `<button type="button" class="roulette-suggest" data-add="${escapeHtml(s)}">${meta.emoji} ${s}</button>`;
+  }).join('');
+  wrap.querySelectorAll('[data-add]').forEach(btn=>{
+    btn.addEventListener('click', ()=> addRouletteOption(btn.dataset.add));
+  });
+}
+
+function addRouletteOption(raw){
+  const val = (raw || '').trim();
+  if (!val) return;
+  if (rouletteOptions.some(o=> o.toLowerCase() === val.toLowerCase())){
+    showToast('Pilihan itu sudah ada di roda 🎡', true);
+    return;
+  }
+  if (rouletteOptions.length >= 12){
+    showToast('Maksimal 12 pilihan ya, biar rodanya masih kebaca', true);
+    return;
+  }
+  rouletteOptions.push(val);
+  saveRouletteOptions();
+  renderRouletteChips();
+  buildRouletteWheel();
+  updateRouletteButtonState();
+}
+
+function removeRouletteOption(idx){
+  rouletteOptions.splice(idx,1);
+  saveRouletteOptions();
+  rouletteCurrentRotation = 0;
+  const wheelEl = document.getElementById('rouletteWheel');
+  wheelEl.style.transition = 'none';
+  wheelEl.style.transform = 'rotate(0deg)';
+  requestAnimationFrame(()=>{ wheelEl.style.transition = ''; });
+  renderRouletteChips();
+  buildRouletteWheel();
+  updateRouletteButtonState();
+}
+
+function renderRouletteChips(){
+  const wrap = document.getElementById('rouletteChips');
+  if (rouletteOptions.length === 0){
+    wrap.innerHTML = `<p class="text-xs text-[var(--ink-soft)] font-hand text-lg">roda masih kosong, isi dulu yuk~</p>`;
+    return;
+  }
+  wrap.innerHTML = rouletteOptions.map((opt, i)=> `
+    <span class="roulette-chip">${escapeHtml(opt)}<button type="button" data-remove="${i}" aria-label="Hapus">&times;</button></span>
+  `).join('');
+  wrap.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeRouletteOption(parseInt(btn.dataset.remove,10)));
+  });
+}
+
+function updateRouletteButtonState(){
+  const btn = document.getElementById('btnSpinRoulette');
+  const hint = document.getElementById('rouletteHint');
+  const ok = rouletteOptions.length >= 2 && !rouletteSpinning;
+  btn.disabled = !ok;
+  if (rouletteSpinning) hint.textContent = 'roda lagi muter, tunggu ya... 🎡';
+  else if (rouletteOptions.length < 2) hint.textContent = 'tambahkan minimal 2 pilihan untuk mulai memutar';
+  else hint.textContent = `${rouletteOptions.length} pilihan siap diputar!`;
+}
+
+document.getElementById('formRouletteAdd').addEventListener('submit', e=>{
+  e.preventDefault();
+  const input = document.getElementById('rInputOpsi');
+  addRouletteOption(input.value);
+  input.value = '';
+  input.focus();
+});
+
+document.getElementById('btnClearRoulette').addEventListener('click', ()=>{
+  if (rouletteOptions.length === 0) return;
+  if (!confirm('Kosongkan semua pilihan di roulette?')) return;
+  rouletteOptions = [];
+  saveRouletteOptions();
+  rouletteCurrentRotation = 0;
+  const wheelEl = document.getElementById('rouletteWheel');
+  wheelEl.style.transition = 'none';
+  wheelEl.style.transform = 'rotate(0deg)';
+  requestAnimationFrame(()=>{ wheelEl.style.transition = ''; });
+  document.getElementById('rouletteResultWrap').classList.add('hidden');
+  document.getElementById('rouletteResultWrap').innerHTML = '';
+  renderRouletteChips();
+  buildRouletteWheel();
+  updateRouletteButtonState();
+});
+
+function buildRouletteWheel(){
+  const svg = document.getElementById('rouletteWheel');
+  const n = rouletteOptions.length;
+  if (n === 0){
+    svg.innerHTML = `<circle cx="150" cy="150" r="146" fill="var(--board)"></circle>
+      <text x="150" y="155" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="14" fill="var(--ink-soft)">tambah pilihan</text>`;
+    return;
+  }
+  if (n === 1){
+    svg.innerHTML = `<circle cx="150" cy="150" r="146" fill="${ROULETTE_PALETTE[0]}"></circle>
+      <text x="150" y="155" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="16" fill="#fff">${escapeHtml(rouletteOptions[0])}</text>`;
+    return;
+  }
+  const sliceAngle = 360 / n;
+  let paths = '';
+  let texts = '';
+  for (let i = 0; i < n; i++){
+    const color = ROULETTE_PALETTE[i % ROULETTE_PALETTE.length];
+    const startAngle = -90 + i * sliceAngle;
+    const endAngle   = startAngle + sliceAngle;
+    const sRad = startAngle * Math.PI / 180;
+    const eRad = endAngle   * Math.PI / 180;
+    const x1 = 150 + 146 * Math.cos(sRad), y1 = 150 + 146 * Math.sin(sRad);
+    const x2 = 150 + 146 * Math.cos(eRad), y2 = 150 + 146 * Math.sin(eRad);
+    const largeArc = sliceAngle > 180 ? 1 : 0;
+    paths += `<path d="M150,150 L${x1.toFixed(2)},${y1.toFixed(2)} A146,146 0 ${largeArc} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${color}" stroke="#fff" stroke-width="2"></path>`;
+
+    const midAngle = startAngle + sliceAngle / 2;
+    let label = rouletteOptions[i];
+    if (label.length > 14) label = label.slice(0,13) + '…';
+    const radius = n > 6 ? 95 : 100;
+    texts += `<text x="150" y="150" text-anchor="middle" dominant-baseline="middle"
+      font-family="Fredoka,sans-serif" font-weight="600" font-size="${n > 8 ? 10 : 12}" fill="#fff"
+      transform="rotate(${midAngle} 150 150) translate(${radius} 0) rotate(90)">${escapeHtml(label)}</text>`;
+  }
+  svg.innerHTML = paths + texts;
+}
+
+function spinRoulette(){
+  if (rouletteSpinning) return;
+  const n = rouletteOptions.length;
+  if (n < 2){ showToast('Tambahkan minimal 2 pilihan dulu ya', true); return; }
+
+  rouletteSpinning = true;
+  updateRouletteButtonState();
+  document.getElementById('rouletteResultWrap').classList.add('hidden');
+
+  const sliceAngle  = 360 / n;
+  const targetIndex = Math.floor(Math.random() * n);
+  const midAngle    = -90 + sliceAngle * targetIndex + sliceAngle / 2;
+
+  let neededOffset = (-90 - midAngle) % 360;
+  if (neededOffset < 0) neededOffset += 360;
+
+  const prevMod = rouletteCurrentRotation % 360;
+  let deltaToAdd = neededOffset - prevMod;
+  if (deltaToAdd <= 0) deltaToAdd += 360;
+
+  const fullSpins  = 6;
+  const newRotation = rouletteCurrentRotation + fullSpins * 360 + deltaToAdd;
+  rouletteCurrentRotation = newRotation;
+
+  const wheelEl = document.getElementById('rouletteWheel');
+  wheelEl.style.transform = `rotate(${newRotation}deg)`;
+
+  setTimeout(()=>{
+    rouletteSpinning = false;
+    updateRouletteButtonState();
+    showRouletteResult(rouletteOptions[targetIndex]);
+  }, 4150);
+}
+
+function showRouletteResult(pilihan){
+  const wrap = document.getElementById('rouletteResultWrap');
+  wrap.classList.remove('hidden');
+  wrap.innerHTML = `
+    <div class="roulette-result-pop fade-in">
+      <p class="text-[11px] uppercase tracking-wide opacity-85 font-semibold">Roda memilih...</p>
+      <p class="font-display text-2xl font-semibold mt-1">${escapeHtml(pilihan)} 🎉</p>
+      <p class="text-xs opacity-90 mt-1">yuk dijalani bareng-bareng~</p>
+    </div>`;
+}
+
+document.getElementById('btnSpinRoulette').addEventListener('click', spinRoulette);
+
+/* ============================================================
  *  BOTTOM NAV SWITCHING
  * ============================================================ */
 function switchPage(name){
@@ -1713,6 +2002,8 @@ async function loadProfil(){
   document.getElementById('apiStatus').textContent = useLocal ? '' : '';
   initViewToggle();
   renderFilterTabs();
+  buildRouletteWheel();
+  updateRouletteButtonState();
   await loadProfil();
   await loadJadwal();
   startAutoSync();
