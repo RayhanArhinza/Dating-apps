@@ -1290,10 +1290,30 @@ function openDetail(id){
     ${j.giliran ? `<p class="text-sm mb-1">🙋 Giliran: ${escapeHtml(j.giliran)}</p>` : ''}
     ${j.catatan ? `<p class="font-hand text-xl text-[var(--rose-deep)] mt-3">"${escapeHtml(j.catatan)}"</p>` : ''}
     ${!done ? `
-    <div class="mt-4">
-      <label class="text-xs font-semibold text-[var(--rose-deep)]">Tambahkan foto kenangan (opsional)</label>
-      <input type="file" id="fotoSelesaiInput" accept="image/*" class="w-full mt-1 text-xs">
-      <div id="fotoPreviewWrap" class="hidden mt-2"><img id="fotoPreviewImg" class="w-full rounded-xl max-h-40 object-cover" alt=""></div>
+    <div class="mt-5">
+      <p class="text-xs font-semibold text-[var(--rose-deep)] mb-2">📸 Foto kenangan (opsional)</p>
+      <!-- Area upload — hidden file input dipicu oleh klik area ini -->
+      <input type="file" id="fotoSelesaiInput" accept="image/*" class="hidden">
+      <div id="fotoDropZone"
+        style="border:2px dashed var(--rose); border-radius:16px; background:rgba(232,96,126,.05); cursor:pointer; transition:background .15s ease;"
+        class="relative overflow-hidden">
+        <!-- State: belum ada foto -->
+        <div id="fotoZoneEmpty" class="flex flex-col items-center justify-center gap-2 py-6 px-4">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(232,96,126,.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">📷</div>
+          <p style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:.9rem;color:var(--rose-deep);">Ketuk untuk pilih foto</p>
+          <p style="font-size:.7rem;color:var(--ink-soft);">JPG / PNG · otomatis dikompres</p>
+        </div>
+        <!-- State: foto sudah dipilih (hidden by default) -->
+        <div id="fotoZonePreview" class="hidden relative">
+          <img id="fotoPreviewImg" class="w-full object-cover" style="max-height:180px;border-radius:14px;" alt="">
+          <!-- Overlay tombol ganti -->
+          <div style="position:absolute;inset:0;background:rgba(64,42,61,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;" id="fotoOverlay">
+            <span style="background:#fff;color:var(--rose-deep);font-size:.75rem;font-weight:700;padding:6px 16px;border-radius:9999px;">🔄 Ganti foto</span>
+          </div>
+        </div>
+      </div>
+      <!-- Tombol hapus foto -->
+      <button id="btnHapusFoto" class="hidden mt-2 text-xs text-red-400 font-semibold w-full text-center">✕ Hapus foto</button>
     </div>` : ''}
     <div class="flex gap-2 mt-6 pb-1">
       <button id="btnToggleDetail" class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm">${done ? 'Batal selesai' : 'Tandai selesai ✓'}</button>
@@ -1305,16 +1325,56 @@ function openDetail(id){
   document.getElementById('btnCloseDetail').addEventListener('click', ()=> detailBackdrop.classList.remove('open'));
 
   if (!done){
-    document.getElementById('fotoSelesaiInput').addEventListener('change', e=>{
+    const fInput      = document.getElementById('fotoSelesaiInput');
+    const dropZone    = document.getElementById('fotoDropZone');
+    const zoneEmpty   = document.getElementById('fotoZoneEmpty');
+    const zonePreview = document.getElementById('fotoZonePreview');
+    const previewImg  = document.getElementById('fotoPreviewImg');
+    const fotoOverlay = document.getElementById('fotoOverlay');
+    const btnHapus    = document.getElementById('btnHapusFoto');
+
+    function showPreview(src){
+      previewImg.src = src;
+      zoneEmpty.classList.add('hidden');
+      zonePreview.classList.remove('hidden');
+      btnHapus.classList.remove('hidden');
+      dropZone.style.border = '2px solid var(--rose)';
+    }
+    function resetZone(){
+      previewImg.src = '';
+      fInput.value   = '';
+      zoneEmpty.classList.remove('hidden');
+      zonePreview.classList.add('hidden');
+      btnHapus.classList.add('hidden');
+      dropZone.style.border = '2px dashed var(--rose)';
+    }
+
+    // Klik zona → buka file picker
+    dropZone.addEventListener('click', ()=> fInput.click());
+
+    // Hover overlay saat preview aktif
+    dropZone.addEventListener('mouseenter', ()=>{ if (!zonePreview.classList.contains('hidden')) fotoOverlay.style.opacity='1'; });
+    dropZone.addEventListener('mouseleave', ()=>{ fotoOverlay.style.opacity='0'; });
+    // Touch: tahan sebentar → tampil overlay, lalu hilang
+    dropZone.addEventListener('touchstart', ()=>{ if (!zonePreview.classList.contains('hidden')) fotoOverlay.style.opacity='1'; }, {passive:true});
+    dropZone.addEventListener('touchend',   ()=>{ setTimeout(()=>{ fotoOverlay.style.opacity='0'; }, 600); }, {passive:true});
+
+    // File dipilih
+    fInput.addEventListener('change', e=>{
       const file = e.target.files && e.target.files[0];
       if (!file) return;
+      // Animasi loading singkat
+      dropZone.style.background = 'rgba(232,96,126,.12)';
       const reader = new FileReader();
       reader.onload = ev=>{
-        document.getElementById('fotoPreviewWrap').classList.remove('hidden');
-        document.getElementById('fotoPreviewImg').src = ev.target.result;
+        showPreview(ev.target.result);
+        dropZone.style.background = 'rgba(232,96,126,.05)';
       };
       reader.readAsDataURL(file);
     });
+
+    // Hapus foto
+    btnHapus.addEventListener('click', e=>{ e.stopPropagation(); resetZone(); });
   }
 
   document.getElementById('btnToggleDetail').addEventListener('click', async ()=>{
