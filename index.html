@@ -744,7 +744,7 @@
  *  KONFIGURASI
  * ============================================================ */
 const CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbwfPxboMk8wo2y_O_s65psYX5_SSOI8wVv7SD2sca6_mV44KhmpEyR3YhbsKGvrWJ22fw/exec'
+  API_URL: 'https://script.google.com/macros/s/AKfycbxrAjZD8FMxgml4jq_a7_LNO6Vfanq8QHng8i2PJ0W01sdBr-LxPx7Nx3OegF0q4fX7Kg/exec'
 };
 
 const CATEGORY_META = {
@@ -819,18 +819,30 @@ async function apiDelete(id){
   if (useLocal){ lsSaveAll(lsGetAll().filter(x=>x.id!==id)); return { ok:true }; }
   return apiPost({ action:'delete', id });
 }
-async function apiToggleStatus(id, foto){
+async function apiToggleStatus(id, foto, kesanA, kesanB){
   if (useLocal){
     const arr = lsGetAll();
     const idx = arr.findIndex(x=>x.id===id);
     if (idx>-1){
       arr[idx].status = arr[idx].status==='Selesai' ? 'Rencana' : 'Selesai';
       if (typeof foto === 'string' && foto !== '') arr[idx].foto = foto;
+      if (typeof kesanA === 'string') arr[idx].kesanA = kesanA;
+      if (typeof kesanB === 'string') arr[idx].kesanB = kesanB;
     }
     lsSaveAll(arr);
     return { ok:true };
   }
-  return apiPost({ action:'toggleStatus', id, foto });
+  return apiPost({ action:'toggleStatus', id, foto, kesanA, kesanB });
+}
+async function apiUpdateKesan(id, kesanA, kesanB){
+  if (useLocal){
+    const arr = lsGetAll();
+    const idx = arr.findIndex(x=>x.id===id);
+    if (idx>-1){ arr[idx].kesanA = kesanA; arr[idx].kesanB = kesanB; }
+    lsSaveAll(arr);
+    return { ok:true };
+  }
+  return apiPost({ action:'updateKesan', id, kesanA, kesanB });
 }
 async function apiPost(payload){
   const res = await fetch(CONFIG.API_URL, {
@@ -1393,6 +1405,45 @@ function openDetail(id){
       </div>
       <!-- Tombol hapus foto -->
       <button id="btnHapusFoto" class="hidden mt-2 text-xs text-red-400 font-semibold w-full text-center">✕ Hapus foto</button>
+    </div>
+    <div class="mt-5">
+      <p class="text-xs font-semibold text-[var(--rose-deep)] mb-2">💬 Kesan kalian (opsional)</p>
+      <div class="space-y-2">
+        <div>
+          <label class="text-[11px] text-[var(--ink-soft)] font-semibold">${escapeHtml(STATE.profil.namaA)}</label>
+          <textarea id="kesanAInput" rows="2" placeholder="Bagaimana perasaan ${escapeHtml(STATE.profil.namaA)}?"
+            class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm">${escapeHtml(j.kesanA||'')}</textarea>
+        </div>
+        <div>
+          <label class="text-[11px] text-[var(--ink-soft)] font-semibold">${escapeHtml(STATE.profil.namaB)}</label>
+          <textarea id="kesanBInput" rows="2" placeholder="Bagaimana perasaan ${escapeHtml(STATE.profil.namaB)}?"
+            class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm">${escapeHtml(j.kesanB||'')}</textarea>
+        </div>
+      </div>
+    </div>` : ''}
+    ${done ? `
+    <div class="mt-5" id="kesanWrap">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs font-semibold text-[var(--rose-deep)]">💬 Kesan kalian</p>
+        <button id="btnEditKesan" class="text-[11px] font-semibold text-[var(--rose-deep)]">✏️ Ubah</button>
+      </div>
+      <div id="kesanViewMode" class="space-y-2">
+        ${(j.kesanA||j.kesanB) ? `
+          ${j.kesanA ? `<div class="bg-[var(--bg)] rounded-xl px-3 py-2"><p class="text-[10px] font-semibold text-[var(--ink-soft)]">${escapeHtml(STATE.profil.namaA)}</p><p class="font-hand text-lg text-[var(--rose-deep)] leading-snug">"${escapeHtml(j.kesanA)}"</p></div>` : ''}
+          ${j.kesanB ? `<div class="bg-[var(--bg)] rounded-xl px-3 py-2"><p class="text-[10px] font-semibold text-[var(--ink-soft)]">${escapeHtml(STATE.profil.namaB)}</p><p class="font-hand text-lg text-[var(--rose-deep)] leading-snug">"${escapeHtml(j.kesanB)}"</p></div>` : ''}
+        ` : `<p class="text-xs text-[var(--ink-soft)] font-hand text-lg">belum ada kesan yang ditulis~</p>`}
+      </div>
+      <div id="kesanEditMode" class="hidden space-y-2">
+        <div>
+          <label class="text-[11px] text-[var(--ink-soft)] font-semibold">${escapeHtml(STATE.profil.namaA)}</label>
+          <textarea id="kesanAEditInput" rows="2" class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm">${escapeHtml(j.kesanA||'')}</textarea>
+        </div>
+        <div>
+          <label class="text-[11px] text-[var(--ink-soft)] font-semibold">${escapeHtml(STATE.profil.namaB)}</label>
+          <textarea id="kesanBEditInput" rows="2" class="w-full mt-1 rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm">${escapeHtml(j.kesanB||'')}</textarea>
+        </div>
+        <button id="btnSimpanKesan" class="w-full bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2 text-xs">Simpan kesan</button>
+      </div>
     </div>` : ''}
     <div class="flex gap-2 mt-6 pb-1">
       <button id="btnToggleDetail" class="flex-1 bg-[var(--rose)] hover:bg-[var(--rose-deep)] text-white font-display font-semibold rounded-full py-2.5 text-sm">${done ? 'Batal selesai' : 'Tandai selesai ✓'}</button>
@@ -1456,9 +1507,40 @@ function openDetail(id){
     btnHapus.addEventListener('click', e=>{ e.stopPropagation(); resetZone(); });
   }
 
+  if (done){
+    const btnEditKesan = document.getElementById('btnEditKesan');
+    const viewMode      = document.getElementById('kesanViewMode');
+    const editMode      = document.getElementById('kesanEditMode');
+    btnEditKesan.addEventListener('click', ()=>{
+      const willEdit = editMode.classList.contains('hidden');
+      editMode.classList.toggle('hidden');
+      viewMode.classList.toggle('hidden');
+      btnEditKesan.textContent = willEdit ? '✕ Batal' : '✏️ Ubah';
+    });
+    document.getElementById('btnSimpanKesan').addEventListener('click', async ()=>{
+      const kesanA = document.getElementById('kesanAEditInput').value.trim();
+      const kesanB = document.getElementById('kesanBEditInput').value.trim();
+      const idx          = STATE.jadwal.findIndex(x=>x.id===id);
+      const prevSnapshot = idx>-1 ? { ...STATE.jadwal[idx] } : null;
+      if (idx>-1) STATE.jadwal[idx] = { ...STATE.jadwal[idx], kesanA, kesanB };
+      detailBackdrop.classList.remove('open');
+      renderAll_();
+      try {
+        const res = await apiUpdateKesan(id, kesanA, kesanB);
+        if (!res || !res.ok) throw new Error(res && res.error);
+      } catch(err){
+        if (idx>-1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
+        renderAll_();
+        showToast('Gagal menyimpan kesan, coba lagi ya', true);
+      }
+    });
+  }
+
   document.getElementById('btnToggleDetail').addEventListener('click', async ()=>{
     const btn = document.getElementById('btnToggleDetail');
-    let fotoData = j.foto || '';
+    let fotoData   = j.foto   || '';
+    let kesanAData = j.kesanA || '';
+    let kesanBData = j.kesanB || '';
 
     if (!done){
       const fInput = document.getElementById('fotoSelesaiInput');
@@ -1472,15 +1554,19 @@ function openDetail(id){
           return;
         }
       }
+      const kesanAInput = document.getElementById('kesanAInput');
+      const kesanBInput = document.getElementById('kesanBInput');
+      if (kesanAInput) kesanAData = kesanAInput.value.trim();
+      if (kesanBInput) kesanBData = kesanBInput.value.trim();
     }
 
     const idx          = STATE.jadwal.findIndex(x=>x.id===id);
     const prevSnapshot = idx>-1 ? { ...STATE.jadwal[idx] } : null;
     const nextStatus   = done ? 'Rencana' : 'Selesai';
-    if (idx>-1) STATE.jadwal[idx] = { ...STATE.jadwal[idx], status: nextStatus, foto: fotoData };
+    if (idx>-1) STATE.jadwal[idx] = { ...STATE.jadwal[idx], status: nextStatus, foto: fotoData, kesanA: kesanAData, kesanB: kesanBData };
     detailBackdrop.classList.remove('open');
     renderAll_();
-    apiToggleStatus(id, fotoData).then(res=>{
+    apiToggleStatus(id, fotoData, kesanAData, kesanBData).then(res=>{
       if (!res || !res.ok) throw new Error(res && res.error);
     }).catch(err=>{
       if (idx>-1 && prevSnapshot) STATE.jadwal[idx] = prevSnapshot;
