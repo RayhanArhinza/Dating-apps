@@ -72,14 +72,26 @@
 
   .top-space{padding:24px 20px 15px}
   .app-header{display:flex;align-items:center;justify-content:space-between;gap:14px}
-  .brand-row{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand-row{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
   .brand-mascot{
     width:46px;height:46px;border-radius:17px;background:linear-gradient(145deg,#fff,#ffe7ef);
     box-shadow:0 8px 22px rgba(204,91,130,.15);display:grid;place-items:center;font-size:25px;
     transform:rotate(-5deg);border:2px solid #fff;
   }
   .micro-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:900;color:var(--rose-deep)}
-  .hello-title{font-family:'Baloo 2',cursive;font-size:24px;line-height:1.08;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hello-title{
+    font-family:'Baloo 2',cursive;
+    font-size:clamp(13px,3.7vw,17px);
+    line-height:1.02;
+    font-weight:800;
+    white-space:normal;
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    overflow-wrap:anywhere;
+    max-width:100%;
+  }
   .header-actions{display:flex;gap:8px;flex-shrink:0}
   .icon-bubble{
     width:42px;height:42px;border-radius:16px;display:grid;place-items:center;font-size:19px;
@@ -214,7 +226,7 @@
       <header class="app-header">
         <div class="brand-row">
           <div class="brand-mascot">🐰</div>
-          <div class="min-w-0"><p class="micro-label">Halo</p><h1 class="hello-title"><span id="lblNamaHeader">Aku & Kamu</span> ♡</h1></div>
+          <div class="min-w-0 flex-1"><p class="micro-label">Halo</p><h1 class="hello-title"><span id="lblNamaHeader">Rayhan Saneval Arhinza & Nurul Maulidyah</span> ♡</h1></div>
         </div>
         <div class="header-actions">
           <button id="btnOpenRoulette" aria-label="Roulette keputusan" class="icon-bubble">🎡</button>
@@ -272,7 +284,7 @@
     <header class="page-title-area"><span class="title-sticker">two peas, one pod 🌱</span><h1>Profil Kita</h1><p>Sepasang nama, banyak sekali cerita.</p></header>
     <div class="profile-card">
       <div class="avatar-stack"><div class="couple-avatar" id="avatarA">A</div><div class="couple-avatar" id="avatarB">K</div></div>
-      <h2 class="profile-name" id="profilNamaGabung">Aku & Kamu</h2>
+      <h2 class="profile-name" id="profilNamaGabung">Rayhan Saneval Arhinza & Nurul Maulidyah</h2>
       <p class="profile-days" id="profilHariBersama">klik “ubah” untuk isi tanggal jadian</p>
       <button id="btnEditProfil" class="edit-profile-btn">✎ edit cerita kita</button>
     </div>
@@ -463,7 +475,7 @@ const CATEGORY_META = {
 
 let STATE = {
   jadwal: [],
-  profil: { namaA:'Aku', namaB:'Kamu', jadian:'' },
+  profil: { namaA:'Rayhan Saneval Arhinza', namaB:'Nurul Maulidyah', jadian:'' },
   filterKategori: 'Semua',
   editingId: null,
   currentPage: 'beranda',
